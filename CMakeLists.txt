@@ -17,11 +17,12 @@ find_package(Python3 COMPONENTS Interpreter)
 
 # Adding a target for the Python script
 add_custom_target(run_main_script
-    COMMAND ${Python3_EXECUTABLE} -m main
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/main.py
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input:$ENV{PYTHONPATH}"
+    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${CMAKE_SOURCE_DIR}/input:$ENV{PYTHONPATH}" ${CMAKE_SOURCE_DIR}/src/main.py
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Executing main.py"
+    VERBATIM
 )
+
 
 
 

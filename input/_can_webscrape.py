@@ -6,36 +6,56 @@ def fetch_robots_txt(url: str) -> str:
         raise Exception(f"Invalid URL '{url}'. The URL should end with 'robots.txt'")
     response = requests.get(url)
     if response.status_code != 200:
-        raise Exception(f"Failed to fetch robots.txt from {url}")
+        raise Exception(f"Failed to fetch robots.txt from {url}. RESPONSE CODE: {response.status_code}")
     return response.text.strip()
 
+def separate_robot_txt_by_groups(robots_txt: str) -> list:
+    pattern = re.compile(
+        r"((user-agent:|allow:|disallow:|crawl-delay:|sitemap:|host:)\s*(?:(?!user-agent:|allow:|disallow:|crawl-delay:|sitemap:|host:).)*)",
+        re.IGNORECASE
+    )
+    matches = pattern.findall(robots_txt)
+    lines = [match[0].strip() for match in matches]
+    return lines
 
-def convert_robot_txt_to_list(robots_txt: str) -> list:
-    lines = robots_txt.split('\n') # Split a string into a list
-    # Regular expression pattern to recognize robot rules
-    pattern = re.compile(r"(User-agent: \*|Disallow: [^\s]+|Allow: [^\s]+|Crawl-delay: \d+|Sitemap: [^\s]+|Host: [^\s]+)")
-    return [match for line in lines for match in pattern.findall(line)] # Regex findall method
-
-def filter_by_user_agent(lines):
-    
+def filter_user_agent(input_list):
     # Regex patterns
-    user_agent_pattern = re.compile(r"User-agent: \*", re.IGNORECASE)
+    user_agent_star_pattern = re.compile(r"User-agent: \*", re.IGNORECASE)
+    user_agent_not_star_pattern = re.compile(r"User-agent: (?!.*\*)[^\n]+", re.IGNORECASE)
     rules_pattern = re.compile(r"(Disallow: [^\s]+|Allow: [^\s]+|Crawl-delay: \d+)", re.IGNORECASE)
     global_pattern = re.compile(r"(Sitemap: [^\s]+|Host: [^\s]+)", re.IGNORECASE)
 
     output = []
-    apply_rules = False
-    for line in lines:
+    should_apply_rules = False
+    user_agent_star_added = False
 
-        if user_agent_pattern.match(line):
-            apply_rules = True
-            output.append(line)  # Add the User-agent line to the output
+    for line in input_list:
+        line = line.strip()
+
+        # Match "User-agent: *"
+        if user_agent_star_pattern.match(line):
+            should_apply_rules = True
+            if not user_agent_star_added:
+                output.append(line)
+                user_agent_star_added = True
             continue
-        
-        if apply_rules and (rules_pattern.match(line) or global_pattern.match(line)):
-            output.append(line)
-    return output
 
+        # Match "User-agent" that isn't "*"
+        if user_agent_not_star_pattern.match(line):
+            should_apply_rules = False
+            user_agent_star_added = False
+            continue
+
+        # Match rules when "User-agent: *" is active
+        if should_apply_rules and rules_pattern.match(line):
+            output.append(line)
+            continue
+
+        # Match global directives
+        if global_pattern.match(line):
+            output.append(line)
+
+    return output
 
 def robot_list_to_dict(input_list):
     output_dict = {}
@@ -56,20 +76,29 @@ def can_webscrape(robots_txt_dict):
     user_agent = robots_txt_dict.get("user-agent")
     disallow = robots_txt_dict.get("disallow", [])
     
-    if user_agent == "*":
+    if user_agent and "*" in user_agent:  # changed this line to check for presence of "*" in user_agent
         if "/" in disallow:
             print("You cannot scrape this website.")
             return {"allowed": False, "disallowed_directories": ["/"]}
+        elif disallow:  # Check if disallow has any content
+            print("You can scrape this website.")
+            print("However, avoid the following directories:", disallow)
+            return {"allowed": True, "disallowed_directories": disallow}
         
-        print("You can scrape this website.")
-        print("However, avoid the following directories:", disallow)
-        return {"allowed": True, "disallowed_directories": disallow}
-    
     # If no disallow key is found or user-agent isn't "*", assume scraping is allowed
     print("You can scrape this website.")
     return {"allowed": True, "disallowed_directories": []}
 
 
+def can_webscrape_main(url: str) -> dict:
+    fetched_content = fetch_robots_txt(url)
+    robots_list = separate_robot_txt_by_groups(fetched_content)
+    robots_filtered_list = filter_user_agent(robots_list)
+    robots_dict = robot_list_to_dict(robots_filtered_list)
+    robots_dict_lower = dict_keys_to_lowercase(robots_dict)
+    scrape_decision = can_webscrape(robots_dict_lower)
+    
+    return scrape_decision
 
 
 

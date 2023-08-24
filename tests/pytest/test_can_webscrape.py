@@ -48,45 +48,106 @@ class TestFetchRobotsTxt:
             with pytest.raises(Exception, match=f"Invalid URL '{url}'. The URL should end with 'robots.txt'"):
                 _can_webscrape.fetch_robots_txt(url)
 
-class TestConvertRobotsTxt:
-    def test_convert_robots_txt_to_list(self):
-        input_txt = "User-agent: *\nDisallow: /admin\nDisallow: /login"
-        expected_output = ["User-agent: *", "Disallow: /admin", "Disallow: /login"]
-        result = _can_webscrape.convert_robot_txt_to_list(input_txt)
+class TestSeparateRobotsTxtByGroup:
+    
+    def test_empty_input(self):
+        input_txt = ""
+        expected_output = []
+        result = _can_webscrape.separate_robot_txt_by_groups(input_txt)
         assert result == expected_output, f"Expected {expected_output} but got {result}"
-    
-    def test_bot_agent(self):
-        input_txt = "user-agent: sitebot\ndisallow : /\n \nUser-agent : MJ12bot\nDisallow : /\n \nUser-agent: *\nDisallow: /admin\nDisallow: /login"
-        expected_output = ["user-agent: sitebot", "disallow : /", "User-agent : MJ12bot", "Disallow : /", "User-agent: *", "Disallow: /admin", "Disallow: /login"]
-        result = _can_webscrape.convert_robot_txt_to_list(input_txt)
-        assert result == expected_output, f"Expected {expected_output} but got {result}"
-    
-    def test_txt_empty(self):
-        result = _can_webscrape.convert_robot_txt_to_list("")
-        assert result == [], f"Expected {[]} but got {result}"
-    
+
     def test_txt_no_newline(self):
         input_txt = "User-agent: * Disallow: /admin Disallow: /login"
         expected_output = ["User-agent: *", "Disallow: /admin", "Disallow: /login"]
-        result = _can_webscrape.convert_robot_txt_to_list(input_txt)
+        result = _can_webscrape.separate_robot_txt_by_groups(input_txt)
         assert result == expected_output, f"Expected {expected_output} but got {result}"
-    
-    def test_only_spaces(self):
-        result = _can_webscrape.convert_robot_txt_to_list("   ")
-        assert result == [], f"Expected {[]} but got {result}"
         
+    def test_sequential_order(self):
+        input_txt = "user-agent: Bot disallow: /admin Disallow: /login User-agent: * Disallow: /folders"
+        expected_output = ["user-agent: Bot", "disallow: /admin", "Disallow: /login", "User-agent: *", "Disallow: /folders"]
+        result = _can_webscrape.separate_robot_txt_by_groups(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
+        
+    def test_with_newlines(self):
+        input_txt = "User-agent: *\nDisallow: /admin\nDisallow: /login"
+        expected_output = ["User-agent: *", "Disallow: /admin", "Disallow: /login"]
+        result = _can_webscrape.separate_robot_txt_by_groups(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
+        
+    def test_whitespaces(self):
+        input_txt = "    User-agent: Bot    Disallow: /example   "
+        expected_output = ["User-agent: Bot", "Disallow: /example"]
+        result = _can_webscrape.separate_robot_txt_by_groups(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
+        
+    def test_multiple_newlines(self):
+        input_txt = "User-agent: *\n\n\nDisallow: /admin"
+        expected_output = ["User-agent: *", "Disallow: /admin"]
+        result = _can_webscrape.separate_robot_txt_by_groups(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
+        
+    def test_directives_without_values(self):
+        input_txt = "User-agent: *\nDisallow:"
+        expected_output = ["User-agent: *", "Disallow:"]
+        result = _can_webscrape.separate_robot_txt_by_groups(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
+        
+    def test_unrecognized_directives(self):
+        input_txt = "# This is a comment\nUser-agent: *\nDisallow: /admin\nRandom-directive: ignore"
+        expected_output = ["User-agent: *", "Disallow: /admin"]
+        result = _can_webscrape.separate_robot_txt_by_groups(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
+
 class TestFilterUserAgent:
     def test_filter_user_agent(self):
-        input_txt = ['User-agent: *', 'Disallow: /favourites', 'Disallow: /recommendations', 'Disallow: /refer-a-friend', 'Disallow: /account', 'Disallow: /account/', 'Disallow: /members/sign-up-details', 'Disallow: /members/verify', 'Disallow: /members/reset', 'Disallow: /watchlist', 'Sitemap: https://smarkets.com/sitemap.xml']
+        input_txt = ['user-agent: sitebot', 'disallow: /', 'User-agent: *', 'Disallow: /favourites', 'sitemap: https://smarkets.com/sitemap.xml']
+        expected_output = ['User-agent: *', 'Disallow: /favourites', 'sitemap: https://smarkets.com/sitemap.xml']
+        result = _can_webscrape.filter_user_agent(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
+    
+    def test_multiple_user_agent_star(self):
+        input_txt = ['User-agent: *', 'Disallow: /first', 'User-agent: *', 'Disallow: /second']
+        expected_output = ['User-agent: *', 'Disallow: /first', 'Disallow: /second']
+        result = _can_webscrape.filter_user_agent(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
+    
+    def test_rules_outside_user_agent(self):
+        input_txt = ['Disallow: /noagent', 'User-agent: *', 'Disallow: /yesagent']
+        expected_output = ['User-agent: *', 'Disallow: /yesagent']
+        result = _can_webscrape.filter_user_agent(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
         
-    pass
+    def test_empty_input(self):
+        input_txt = []
+        expected_output = []
+        result = _can_webscrape.filter_user_agent(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
+    
+    def test_additional_whitespaces(self):
+        input_txt = ['User-agent: *   ', '   Disallow: /yesagent   ']
+        expected_output = ['User-agent: *', 'Disallow: /yesagent']
+        result = _can_webscrape.filter_user_agent(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
+    
+    def test_mix_of_rules(self):
+        input_txt = ['User-agent: googlebot', 'Disallow: /google', 'User-agent: *', 'Disallow: /all']
+        expected_output = ['User-agent: *', 'Disallow: /all']
+        result = _can_webscrape.filter_user_agent(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
+        
+    def test_rules_after_globals(self):
+        input_txt = ['User-agent: *', 'Sitemap: https://example.com/sitemap.xml', 'Disallow: /yesagent']
+        expected_output = ['User-agent: *', 'Sitemap: https://example.com/sitemap.xml', 'Disallow: /yesagent']
+        result = _can_webscrape.filter_user_agent(input_txt)
+        assert result == expected_output, f"Expected {expected_output} but got {result}"
 
 class TestRobotListToDict:
     def test_robot_list_to_dict(self):
-        input_list = ["Disallow: /admin", "User-agent: *", "Disallow: /login"]
+        input_list = ["Disallow: /admin", "User-agent: *", "Disallow: /login", "sitemap: https://smarkets.com/sitemap.xml"]
         expected_output = {
             "Disallow": ["/admin", "/login"],
-            "User-agent": ["*"]
+            "User-agent": ["*"],
+            "sitemap" : ["https://smarkets.com/sitemap.xml"]
         }
         result = _can_webscrape.robot_list_to_dict(input_list)
         assert result == expected_output, f"Expected {expected_output}, but got {result}"
@@ -131,16 +192,46 @@ class TestCanWebscrape:
         result = _can_webscrape.can_webscrape(input_dict)
         assert  result == expected, f"Expected {expected}, but got {result}"
 
-'''
+
 class TestWebscrapeBehavioral:
     @pytest.mark.parametrize("robots_txt_content, expected_decision", [
         ("User-agent: *\nDisallow: /", {"allowed": False, "disallowed_directories": ["/"]}),
         ("User-agent: *\nDisallow: /admin", {"allowed": True, "disallowed_directories": ["/admin"]}),
         ("User-agent: Googlebot\nDisallow: /", {"allowed": True, "disallowed_directories": []}),
-        # Add more cases as needed.
+        ("""
+        User-agent: *
+        Disallow: /admin
+        """, 
+        {"allowed": True, "disallowed_directories": ["/admin"]}),
+        ("""
+        User-agent: Googlebot
+        Disallow: /
+        """, 
+        {"allowed": True, "disallowed_directories": []}),
+        ("""
+        User-agent: sitebot
+        Disallow: /
+        
+        User-agent: MJ12bot
+        Disallow: /
+        
+        User-agent: *
+        Disallow: /favourites
+        Disallow: /recommendations
+        Disallow: /refer-a-friend
+        Disallow: /account
+        Disallow: /account/
+        Disallow: /members/sign-up-details
+        Disallow: /members/verify
+        Disallow: /members/reset
+        Disallow: /watchlist
+        
+        sitemap: https://smarkets.com/sitemap.xml
+        """,
+        {"allowed": True, "disallowed_directories": ["/favourites", "/recommendations", "/refer-a-friend", "/account", "/account/", "/members/sign-up-details", "/members/verify", "/members/reset", "/watchlist"]})
     ])
     @patch('requests.get')
-    def test_webscraping_behavior(self, mock_get, robots_txt_content, expected_decision):
+    def test_webscrape_behavior(self, mock_get, robots_txt_content, expected_decision):
         # Given a URL that has a robots.txt
         url = "http://example.com/robots.txt"
         
@@ -149,28 +240,6 @@ class TestWebscrapeBehavioral:
         mock_response.text = robots_txt_content
         mock_get.return_value = mock_response
         
-        fetched_content = _can_webscrape.fetch_robots_txt(url)
-        robots_list = _can_webscrape.convert_robot_txt_to_list(fetched_content)
-        robots_dict = _can_webscrape.robot_list_to_dict(robots_list)
-        robots_dict_lower = _can_webscrape.dict_keys_to_lowercase(robots_dict)
-        scrape_decision = _can_webscrape.can_webscrape(robots_dict_lower)
-        
+        scrape_decision = _can_webscrape.can_webscrape_main(url)
         assert scrape_decision == expected_decision, f"Expected {expected_decision}, but got {scrape_decision}"
 
-'''
-'''
-(
-    """
-    User-agent: *
-    Disallow: /admin
-    """, 
-    {"allowed": True, "disallowed_directories": ["/admin"]}
-),
-(
-    """
-    User-agent: Googlebot
-    Disallow: /
-    """, 
-    {"allowed": True, "disallowed_directories": []}
-)
-    '''
