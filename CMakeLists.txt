@@ -14,10 +14,10 @@ find_package(Python3 COMPONENTS Interpreter)
 
 # INCLUDE DIRECTORIES FOR EXECUTABLES
 # target_include_directories(runAlgorithm PRIVATE ${CMAKE_SOURCE_DIR}/input)
-
-# Adding a target for the Python script
+# For the main script target
+set(MY_PYTHON_PATH "${CMAKE_SOURCE_DIR}/src:${CMAKE_SOURCE_DIR}/input:${CMAKE_SOURCE_DIR}/input/flixbus_tree")
 add_custom_target(run_main_script
-    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${CMAKE_SOURCE_DIR}/input:$ENV{PYTHONPATH}" ${CMAKE_SOURCE_DIR}/src/main.py
+    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}" ${CMAKE_SOURCE_DIR}/src/main.py
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Executing main.py"
     VERBATIM
@@ -48,6 +48,35 @@ if(Python3_Interpreter_FOUND)
         PROPERTIES 
         ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input:$ENV{PYTHONPATH}"
     )
+    add_test(
+        NAME pytest_flixbus_scrape
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/test_flixbus_scrape.py
+    )
+    # Setting the PYTHONPATH to include the input directory
+    set_tests_properties(pytest_flixbus_scrape
+        PROPERTIES 
+        ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input:$ENV{PYTHONPATH}"
+    )
+    add_test(
+        NAME pytest_flixbus_tree
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/test_flixbus_tree.py
+    )
+    # Setting the PYTHONPATH to include the input directory
+    set_tests_properties(pytest_flixbus_tree
+        PROPERTIES 
+        ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input/flixbus_tree:$ENV{PYTHONPATH}"
+    )
     # Uncomment below when you have other Python tests
     # add_test(NAME pytest_can_otherTest COMMAND python -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/otherTest.py)
+    # For the test target
+    add_test(
+        NAME pytest_main
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/test_main.py
+    )
+    set_tests_properties(pytest_main
+        PROPERTIES 
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        ENVIRONMENT "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}"
+    )
+
 endif()

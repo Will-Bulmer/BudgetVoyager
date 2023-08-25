@@ -1,0 +1,70 @@
+## A list of "name" : "id" : "legacy_id" : Reachable
+Note: "id" can also come up as "uuid"
+Note: Slugs appear to be lower case
+
+- Aberdeen : 4588b4ab-79ea-4c6d-88ae-30b58611f263 : 60151 : 
+- Amesbury : ce39aa68-df35-4462-a239-1edd92241574 : 51081
+- Birmingham : 5415b966-f8b8-4b27-8620-1641c1a43e45 : 14668
+- Bradford : 97b09a17-671e-4ce2-a62f-dd4a7022f98f : 46591
+- Bridgend : 07097793-72d8-4e93-a4d3-edb896ce185a : 47351
+- Bridgwater : 828520a8-c32e-4f2a-9566-03553ba17e68 : 50951
+- Bristol : 8aa5378a-5f22-429c-88f7-2468ffab2757 : 43131
+- Cambridge : 3665c7fe-fc24-4b50-9b52-2187944b362c : 46601
+- Cardiff : f4310851-ef17-4748-b3ba-8ece22f4fdb0 : 46691
+- Carlisle : 3fe3a878-30f7-454b-b312-e9cbc4778418 : 116683
+- Chester : 04e8553f-09c8-43d0-9ef5-d31a2289eb89 : 47961
+- Chesterfield : 2241982a-6c18-4d58-b634-7a278d5492d2 : 53331 
+- Codford : 4c675425-84fc-412b-a0c3-189a9d134e22 : 51071
+- Coventry : f45ac44f-1a75-4646-a79d-61386440e317 : 14678
+- Dover : 40e30871-8646-11e6-9066-549f350fcb0c : 10458
+- Dundee : ebe92b4a-799d-4c31-a784-f889046d9cf5 : 103373
+- Dunfermline: efd5d929-528a-4224-95aa-093545545841 : 116673
+- Edinburgh : 6f51bf86-01a6-423d-ac31-e35277829e91 : 46921
+- Exeter : 37270b23-e4a9-45e3-92a6-06bd94ed417b : 67623
+- Folkestone : 40e1c6ae-8646-11e6-9066-549f350fcb0c : 8128
+- Frome : 154a35b8-9c22-41d9-b0a3-7455c4e71d9d : 51001
+- Glasgow : 4a8671ef-0108-4159-8772-5e3b9618b143 : 46891
+- Glastonbury : 1fa4086a-566b-420c-a330-a7ed2507bdf7 : 50961
+- Hayle : 110a6a55-6a2f-4fc6-8049-97fa18a59223 : 117593
+- Heathrow Airport : 9b6a34b8-3ecb-11ea-8017-02437075395e : 57511
+- Ilminster : 
+- Lancaster : e6da4098-043b-44e9-9a1c-6fd0b3dd9dac : 44201
+- Leeds : 52e0bf1d-25e5-49d0-888e-da8fbc0a25b5 : 43121
+- Leicester : d39c1c34-5ba0-467b-93f5-daf35b98ede4 : 46541
+- Liverpool : b7e2b915-e36a-4df8-821d-2e5a7ef48889 : 14688
+- London : 40dfdfd8-8646-11e6-9066-549f350fcb0c : 3848
+- London Gatwick Airport : 1a716b56-a361-4946-89a0-34a6424532e9 : 47911
+- Manchester: "e8aae13c-1801-4553-b103-e10e8500d4e8" : 14638
+- Middlesbrough : f265c70c-907f-47c6-8210-35f38e336163 : 46631
+- Newcastle Upon Tyne : 88a001c8-eaf6-4126-9ab4-9c0790561e20 : 46561
+- Newport (South Wales) : b143491b-a29f-40c3-aaf0-00cddec2854e : 47361
+- Newquay : 6c851f9e-cb08-4f7e-a0ac-9e83a9990045 : 117543
+- North Petherton : 71c9c87b-f5bc-424d-bc61-54857394948a : 50891
+- Northampton : dde12416-2886-4022-ae89-20122a7ecb1d : 14728
+- Nottingham : f1d39e6c-8e93-4987-b662-0a962140eae8 : 46581
+- Othery : 0b853e53-d2b6-4841-b9eb-071f43a7707c : 53421
+- Penrith : 86f208e0-96c2-4f75-8f6b-b39722e71b7c : 116923
+- Penzance : c1cfcc76-0766-4a8e-b61d-1b0c064965f9 : 117603
+- Perth : 0640e5d1-5437-4b69-9357-b758fc840ff9 : 60141
+- Peterborough : 836cdfc1-42d7-48eb-a911-51898d7c44e3 : 60601
+- Plymouth : 8e6f0212-5248-441d-8a3f-9bd653fa54c5 : 46901
+- Port Talbot : 1df6cf74-b125-4a31-a9ff-cfb260681076 : 117883
+- Preston : cbd53b99-b2c5-4d67-a576-18a69300d7aa : 67633
+- Reading : 9c211de9-c1f3-4ac1-92fa-8913f7b963f4 : 53381
+- Sheffield : 7e720125-5f82-450f-b4cc-ac68935a5b62 : 43141
+- Shepton Mallet : 15352275-8572-4c3d-90bf-35658fbed483 : 50981
+- South Petherton
+- Stevenage : 965502b3-e883-4b47-9cf6-9e6e7231c9b3 : 116783
+- Stirling : dcecb190-0e46-408e-8484-0ce656f52f17 : 60131
+- Stoke-on-Trent : bb5ef6e6-5b68-4197-8677-383db31c1dc3 : 14748
+- Street: af7afb9e-b5a2-4938-abb7-d1831c0fe818 : 51051
+- Sunderland : b3528d56-c5a5-40da-ab2a-dd834f4e9085 : 46641
+- Swansea : 1dc7ccd2-5228-40b0-8520-0d86bd764b44 : 46681
+- Taunton : 012b776f-8b2a-4ff8-bf22-ff2a90f8a049: 50881
+- Warminster : c6a9ff9f-2f67-405c-b58d-ad71287554ab : 51061
+- Warrington : cedf10d6-f803-4a08-87ff-ecdf90eb03f3 : 47971
+- Watford : 79f5346e-d568-486f-94cb-6b38ca6f57ab : 118153
+- Wellington : b1f6fefa-7b31-4fc1-99aa-e73380915e21 : 50871
+- Wells : 739bb2c4-6287-4a90-b19e-8d80cea41c9e : 50971
+- Wincanton 
+- Yeovil
