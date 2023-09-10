@@ -15,7 +15,7 @@ find_package(Python3 COMPONENTS Interpreter)
 # INCLUDE DIRECTORIES FOR EXECUTABLES
 # target_include_directories(runAlgorithm PRIVATE ${CMAKE_SOURCE_DIR}/input)
 # For the main script target
-set(MY_PYTHON_PATH "${CMAKE_SOURCE_DIR}/src:${CMAKE_SOURCE_DIR}/input:${CMAKE_SOURCE_DIR}/input/flixbus_tree")
+set(MY_PYTHON_PATH "${CMAKE_SOURCE_DIR}/src:${CMAKE_SOURCE_DIR}/input")  # : is delimiter to separate multiple paths
 add_custom_target(run_main_script
     COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}" ${CMAKE_SOURCE_DIR}/src/main.py
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -38,37 +38,49 @@ add_test(NAME cpp_test COMMAND test_cpp)
 
 # PYTEST
 # Called on 'ctest' or VS Code `Run CTest`
+
+# FLIXBUS TESTS
+if(Python3_Interpreter_FOUND)
+    add_test(
+        NAME pytest_flixbus_api_utils
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/flixbus/test_api_utils.py
+    )
+    set_tests_properties(pytest_flixbus_api_utils
+        PROPERTIES 
+        ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input/flixbus:$ENV{PYTHONPATH}"
+    )
+    add_test(
+        NAME pytest_flixbus_data_tree_builder
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/flixbus/test_data_tree_builder.py
+    )
+    set_tests_properties(pytest_flixbus_data_tree_builder
+        PROPERTIES 
+        ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input/flixbus:$ENV{PYTHONPATH}"
+    )
+    add_test(
+        NAME pytest_flixbus_route_details
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/flixbus/test_route_details.py
+    )
+    set_tests_properties(pytest_flixbus_route_details
+        PROPERTIES 
+        ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input/flixbus:$ENV{PYTHONPATH}"
+    )
+endif()
+
+# INPUT TESTS
 if(Python3_Interpreter_FOUND)
     add_test(
         NAME pytest_can_webscrape
         COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/test_can_webscrape.py
     )
-    # Setting the PYTHONPATH to include the input directory
     set_tests_properties(pytest_can_webscrape 
         PROPERTIES 
         ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input:$ENV{PYTHONPATH}"
     )
-    add_test(
-        NAME pytest_flixbus_scrape
-        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/test_flixbus_scrape.py
-    )
-    # Setting the PYTHONPATH to include the input directory
-    set_tests_properties(pytest_flixbus_scrape
-        PROPERTIES 
-        ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input:$ENV{PYTHONPATH}"
-    )
-    add_test(
-        NAME pytest_flixbus_tree
-        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/test_flixbus_tree.py
-    )
-    # Setting the PYTHONPATH to include the input directory
-    set_tests_properties(pytest_flixbus_tree
-        PROPERTIES 
-        ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input/flixbus_tree:$ENV{PYTHONPATH}"
-    )
-    # Uncomment below when you have other Python tests
-    # add_test(NAME pytest_can_otherTest COMMAND python -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/otherTest.py)
-    # For the test target
+endif()
+
+# SRC TESTS
+if(Python3_Interpreter_FOUND)
     add_test(
         NAME pytest_main
         COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/test_main.py
@@ -78,5 +90,4 @@ if(Python3_Interpreter_FOUND)
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         ENVIRONMENT "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}"
     )
-
 endif()

@@ -87,8 +87,8 @@ def create_flixbus_datatree(json_data, max_entries, is_test_mode=False):
 
 
 def append_to_json(datatree, filename):
+    # Check if file is empty
     with open(filename, 'r') as file:
-        # Check if file is empty
         file_contents = file.read()
         if not file_contents.strip():
             existing_data = {}

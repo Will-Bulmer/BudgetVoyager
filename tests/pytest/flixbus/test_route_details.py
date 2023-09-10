@@ -1,7 +1,7 @@
 import requests
 import pytest
 from unittest.mock import patch, Mock
-import flixbus_scrape
+import route_details
 
 class TestFetchGlobalApi:
     @patch('requests.get')
@@ -12,7 +12,7 @@ class TestFetchGlobalApi:
         mock_get.return_value = mock_response
 
         url = 'https://example.com/api'
-        response_data = flixbus_scrape.fetch_global_api(url)
+        response_data = route_details.fetch_global_api(url)
 
         assert response_data == {'test_key': 'test_value'}
 
@@ -24,4 +24,4 @@ class TestFetchGlobalApi:
 
         url = 'https://example.com/api'
         with pytest.raises(Exception):
-            flixbus_scrape.fetch_global_api(url)
+            route_details.fetch_global_api(url)

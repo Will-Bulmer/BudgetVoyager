@@ -4,8 +4,8 @@ import os
 import sys
 import json
 import _can_webscrape
-import flixbus_scrape
-import create_flixbus_tree
+from flixbus import data_tree_builder
+from flixbus import route_details
 
 def make_flixbus_routes():
     # Get the directory containing your_current_file.py
@@ -19,8 +19,8 @@ def make_flixbus_routes():
     with open(JSON_ID_PATH, 'r') as json_file:
         json_data = json.load(json_file)
 
-    datatree = create_flixbus_tree.create_flixbus_datatree(json_data, max_entries=100, is_test_mode=False,)
-    create_flixbus_tree.append_to_json(datatree, JSON_tree_PATH)
+    datatree = data_tree_builder.create_flixbus_datatree(json_data, max_entries=100, is_test_mode=False,)
+    data_tree_builder.append_to_json(datatree, JSON_tree_PATH)
     
 
 

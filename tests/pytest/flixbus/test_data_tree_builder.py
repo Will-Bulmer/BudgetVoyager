@@ -5,7 +5,7 @@ import unittest
 import json
 import os
 import tempfile
-import create_flixbus_tree
+import data_tree_builder
 
 
 class TestFetchGlobalApi:
@@ -17,7 +17,7 @@ class TestFetchGlobalApi:
         mock_get.return_value = mock_response
 
         url = 'https://example.com/api'
-        response_data = create_flixbus_tree.fetch_global_api(url)
+        response_data = data_tree_builder.fetch_global_api(url)
 
         assert response_data == {'test_key': 'test_value'}
 
@@ -29,7 +29,7 @@ class TestFetchGlobalApi:
 
         url = 'https://example.com/api'
         with pytest.raises(Exception):
-            create_flixbus_tree.fetch_global_api(url)
+            data_tree_builder.fetch_global_api(url)
 
 # Behavioural Test            
 class TestNeighbouringCities:
@@ -58,7 +58,7 @@ class TestNeighbouringCities:
         expected = {"London" : "40dfdfd8-8646-11e6-9066-549f350fcb0c"}
         
         # Check if the function's output matches the expected output
-        assert expected == create_flixbus_tree.give_reachable_cities(json_data)
+        assert expected == data_tree_builder.give_reachable_cities(json_data)
     
 
     def test_give_reachable_cities_hayle(self):
@@ -90,7 +90,7 @@ class TestNeighbouringCities:
         }
         
         # Check if the function's output matches the expected output
-        assert expected == create_flixbus_tree.give_reachable_cities(json_data)   
+        assert expected == data_tree_builder.give_reachable_cities(json_data)   
         
 class TestURLCall:
     def test_reachable_URL_call(self):
@@ -107,7 +107,7 @@ class TestURLCall:
         expected_url = "{}{}{}{}".format(base_url, input_uuid, endpoint, params.format(limit))
         
         # Get the actual URL from the function
-        actual_url = create_flixbus_tree.reachable_URL_call(input_uuid)
+        actual_url = data_tree_builder.reachable_URL_call(input_uuid)
         
         # Assert that the expected URL matches the actual URL
         assert expected_url == actual_url, f"Expected URL: {expected_url}, but got: {actual_url}"
@@ -116,53 +116,53 @@ class TestURLCall:
         input = "6f51bf86-01a6-423d-ac31-e35277829e91"
         limit = 100
         output = "https://global.api.flixbus.com/cms/cities/6f51bf86-01a6-423d-ac31-e35277829e91/reachable?language=en-gl&country=GB&limit=100"
-        assert output == create_flixbus_tree.reachable_URL_call(input, limit)
+        assert output == data_tree_builder.reachable_URL_call(input, limit)
 
     def test_invalid_UUID_format(self):
         with pytest.raises(ValueError):
-            create_flixbus_tree.reachable_URL_call("abcd-1234-efgh")
+            data_tree_builder.reachable_URL_call("abcd-1234-efgh")
 
     def test_empty_UUID(self):
         with pytest.raises(ValueError):
-            create_flixbus_tree.reachable_URL_call("")
+            data_tree_builder.reachable_URL_call("")
 
     def test_special_char_UUID(self):
         with pytest.raises(ValueError):
-            create_flixbus_tree.reachable_URL_call("1234-5678-9abc-def$")
+            data_tree_builder.reachable_URL_call("1234-5678-9abc-def$")
 
     def test_case_sensitivity(self):
         input_lower = "a1b2c3d4-e5f6-7a8b-9c0d-ef1234567890"
         input_upper = "A1B2C3D4-E5F6-7A8B-9C0D-EF1234567890"
         limit = 100
         output = "https://global.api.flixbus.com/cms/cities/a1b2c3d4-e5f6-7a8b-9c0d-ef1234567890/reachable?language=en-gl&country=GB&limit=100"
-        assert output == create_flixbus_tree.reachable_URL_call(input_lower, limit)
-        assert output == create_flixbus_tree.reachable_URL_call(input_upper, limit)
+        assert output == data_tree_builder.reachable_URL_call(input_lower, limit)
+        assert output == data_tree_builder.reachable_URL_call(input_upper, limit)
 
     def test_non_integer_limit(self):
         input = "6f51bf86-01a6-423d-ac31-e35277829e91"
         with pytest.raises(ValueError):
-            create_flixbus_tree.reachable_URL_call(input, "forty")
+            data_tree_builder.reachable_URL_call(input, "forty")
 
     def test_float_limit(self):
         input = "6f51bf86-01a6-423d-ac31-e35277829e91"
         with pytest.raises(ValueError):
-            create_flixbus_tree.reachable_URL_call(input, 40.5)
+            data_tree_builder.reachable_URL_call(input, 40.5)
 
     def test_negative_limit(self):
         input = "6f51bf86-01a6-423d-ac31-e35277829e91"
         with pytest.raises(ValueError):
-            create_flixbus_tree.reachable_URL_call(input, -10)
+            data_tree_builder.reachable_URL_call(input, -10)
 
     def test_no_limit(self):
         input = "6f51bf86-01a6-423d-ac31-e35277829e91"
         output = "https://global.api.flixbus.com/cms/cities/6f51bf86-01a6-423d-ac31-e35277829e91/reachable?language=en-gl&country=GB&limit=100"  # Assuming 40 is the default limit
-        assert output == create_flixbus_tree.reachable_URL_call(input)
+        assert output == data_tree_builder.reachable_URL_call(input)
 
     def test_large_limit(self):
         input_uuid = "6f51bf86-01a6-423d-ac31-e35277829e91"
         limit = 1000000000
         with pytest.raises(ValueError):
-            create_flixbus_tree.reachable_URL_call(input_uuid, limit)
+            data_tree_builder.reachable_URL_call(input_uuid, limit)
 
 
 def mock_reachable_URL_call(uuid):
@@ -173,19 +173,14 @@ def mock_give_reachable_cities(fetched_data):
     return {city["name"]: city["uuid"] for city in fetched_data["cities"]}
 
 
-class TestCreateFlixbusDatatree(unittest.TestCase):
+class TestCreateFlixbusDatatree:
     
-    @patch('create_flixbus_tree.reachable_URL_call', side_effect=mock_reachable_URL_call)
-    @patch('create_flixbus_tree.fetch_global_api', side_effect=mock_fetch_global_api)
-    @patch('create_flixbus_tree.give_reachable_cities', side_effect=mock_give_reachable_cities)
-    def test_create_flixbus_datatree(self, mock_reachable_URL_call, mock_fetch_global_api, mock_give_reachable_cities):
-        
-        sample_data = {
+    @pytest.mark.parametrize('sample_data, expected_datatree', [
+        ({
             "CityA": {"uuid": "UUID_A"},
             "CityX": {}  # This city has no UUID, so it should be ignored
-        }
-        
-        expected_datatree = {
+        },
+        {
             "CityA": {
                 "uuid": "UUID_A",
                 "neighbors": {
@@ -193,13 +188,17 @@ class TestCreateFlixbusDatatree(unittest.TestCase):
                     "CityC": "UUID_C"
                 }
             }
-        }
+        })
+    ])
+    @patch('data_tree_builder.reachable_URL_call', side_effect=mock_reachable_URL_call)
+    @patch('data_tree_builder.fetch_global_api', side_effect=mock_fetch_global_api)
+    @patch('data_tree_builder.give_reachable_cities', side_effect=mock_give_reachable_cities)
+    def test_create_flixbus_datatree(self, mock_reachable_URL_call, mock_fetch_global_api, mock_give_reachable_cities, sample_data, expected_datatree):
         
-        result_datatree = create_flixbus_tree.create_flixbus_datatree(sample_data, max_entries = 10, is_test_mode=True,)
-        self.assertEqual(result_datatree, expected_datatree)
+        result_datatree = data_tree_builder.create_flixbus_datatree(sample_data, max_entries=10, is_test_mode=True)
+        assert result_datatree == expected_datatree
 
-
-class TestAppendTreeToJson:
+class AppendTreeToJson:
 
     @pytest.fixture
     def temp_json_file(self):
@@ -223,23 +222,24 @@ class TestAppendTreeToJson:
         with open(filename, 'r') as f:
             return json.load(f)
 
+    # Note that all city names will be cleaned to lowercase
     def test_append_to_json(self, temp_json_file):
         self._write_initial_data({
-            "CityA": {"name": "CityA", "uuid": "UUID_A", "neighbors": {}}
+            "citya": {"name": "citya", "uuid": "UUID_A", "neighbors": {}}
         }, temp_json_file)
 
         # Data to append
         datatree = {"CityB": {"name": "CityB", "neighbors": {"CityC": "UUID_C"}}}
         
-        create_flixbus_tree.append_to_json(datatree, temp_json_file)
+        data_tree_builder.append_to_json(datatree, temp_json_file)
         updated_data = self._read_data(temp_json_file)
         
         # Check CityA data remains unchanged
-        assert updated_data["CityA"] == {"name": "CityA", "uuid": "UUID_A", "neighbors": {}}
+        assert updated_data["citya"] == {"name": "citya", "uuid": "UUID_A", "neighbors": {}}
         # Check CityB was added
-        assert updated_data["CityB"] == {"name": "CityB", "neighbors": {"CityC": "UUID_C"}}
+        assert updated_data["cityb"] == {"name": "cityb", "neighbors": {"cityc": "UUID_C"}}
     
-    def test_append_conflicting_data(self, temp_json_file):
+    def append_conflicting_data(self, temp_json_file):
         self._write_initial_data({
             "CityA": {"name": "CityA", "uuid": "UUID_A", "neighbors": {"CityD": "UUID_D"}}
         }, temp_json_file)
@@ -247,33 +247,33 @@ class TestAppendTreeToJson:
         # Data with conflicting information
         datatree = {"CityA": {"name": "CityA_NEW", "uuid": "UUID_A_NEW", "neighbors": {"CityC": "UUID_C"}}}
         
-        create_flixbus_tree.append_to_json(datatree, temp_json_file)
+        data_tree_builder.append_to_json(datatree, temp_json_file)
         updated_data = self._read_data(temp_json_file)
 
         # Check that conflicting data was overwritten
         assert updated_data["CityA"] == {"name": "CityA_NEW", "uuid": "UUID_A_NEW", "neighbors": {"CityD": "UUID_D", "CityC": "UUID_C"}}
     
-    def test_appending_to_empty_file(self, temp_json_file):
+    def appending_to_empty_file(self, temp_json_file):
         self._write_initial_data({}, temp_json_file)
         
         datatree = {"CityE": {"name": "CityE", "uuid": "UUID_E", "neighbors": {}}}
-        create_flixbus_tree.append_to_json(datatree, temp_json_file)
+        data_tree_builder.append_to_json(datatree, temp_json_file)
         updated_data = self._read_data(temp_json_file)
 
         assert updated_data["CityE"] == {"name": "CityE", "uuid": "UUID_E", "neighbors": {}}
 
-    def test_appending_empty_data(self, temp_json_file):
+    def appending_empty_data(self, temp_json_file):
         self._write_initial_data({
             "CityK": {"name": "CityK", "uuid": "UUID_K", "neighbors": {}}
         }, temp_json_file)
 
-        create_flixbus_tree.append_to_json({}, temp_json_file)
+        data_tree_builder.append_to_json({}, temp_json_file)
         updated_data = self._read_data(temp_json_file)
 
         assert updated_data["CityK"] == {"name": "CityK", "uuid": "UUID_K", "neighbors": {}}
     
-    def test_data_with_missing_name_or_uuid(self, temp_json_file):
-        create_flixbus_tree.append_to_json({"CityL": {"neighbors": {"CityM": "UUID_M"}}}, temp_json_file)
+    def data_with_missing_name_or_uuid(self, temp_json_file):
+        data_tree_builder.append_to_json({"CityL": {"neighbors": {"CityM": "UUID_M"}}}, temp_json_file)
         updated_data = self._read_data(temp_json_file)
 
         assert updated_data["CityL"]["name"] == "CityL"

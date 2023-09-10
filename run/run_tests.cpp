@@ -1,14 +1,24 @@
 #include <iostream>
 #include <cstdlib>
 
+#include <iostream>
+#include <cstdlib>
+
 int main() {
-    int return_value = system("cd /home/will_bulmer/PROJECTS/BudgetVoyager/build && ctest --rerun-failed --output-on-failure");
-    
-    if (return_value != 0) {
-        std::cerr << "Error occurred while running the tests." << std::endl;
-    } else {
-        std::cout << "Tests executed successfully." << std::endl;
+    int run_tests = system("cd /home/will_bulmer/PROJECTS/BudgetVoyager/build && ctest");
+
+    if (run_tests != 0) {
+        std::cerr << "Some tests failed. Rerunning failed tests..." << std::endl;
+        int rerun_failed_tests = system("cd /home/will_bulmer/PROJECTS/BudgetVoyager/build && ctest --rerun-failed --output-on-failure");
+
+        if (rerun_failed_tests != 0) {
+            std::cerr << "Error occurred while rerunning the failed tests." << std::endl;
+            return 1;
+        }
     }
+
+    std::cout << "Tests executed successfully." << std::endl;
 
     return 0;
 }
+
