@@ -40,8 +40,6 @@ def give_reachable_cities(json_data):
     cities_dict = {city_info["name"]: city_info["uuid"] for city_info in data["result"] if city_info["country"] == "GB"}
     return cities_dict
 
-import time
-
 def create_flixbus_datatree(json_data, max_entries, is_test_mode=False):
     datatree = {}
     entry_count = 0  # Counter to keep track of processed entries
@@ -82,9 +80,6 @@ def create_flixbus_datatree(json_data, max_entries, is_test_mode=False):
                 time.sleep(2)
     
     return datatree
-
-
-
 
 def append_to_json(datatree, filename):
     # Check if file is empty
