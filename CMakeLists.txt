@@ -22,7 +22,12 @@ add_custom_target(run_main_script
     COMMENT "Executing main.py"
     VERBATIM
 )
-
+add_custom_target(run_gui_script
+    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}" ${CMAKE_SOURCE_DIR}/input/GUI.py
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Executing GUI.py"
+    VERBATIM
+)
 
 
 
