@@ -3,7 +3,19 @@ import json
 import requests
 import re
 import time
+from unittest.mock import patch
 
+
+def load_from_json(file_path: str) -> dict:
+    with open(file_path, 'r') as file:
+        return json.load(file)
+
+def fetch_name_and_UUID_given_legacy_ID_from_JSON(legacy_id, JSON_bus_stop_path):
+    data = load_from_json(JSON_bus_stop_path)
+    entry = data.get(str(legacy_id), {})
+    name = entry.get('name', None)
+    uuid = entry.get('id', None)
+    return name, uuid
 
 def reachable_URL_call(uuid, limit=100):
     # Check for valid UUID
@@ -23,7 +35,7 @@ def reachable_URL_call(uuid, limit=100):
 
 def fetch_global_api(url: str) -> dict:
     """Fetch data from a given URL."""
-    print(f"Request made at {url}")
+    print(f"Request made at {url}", flush=True)
     response = requests.get(url)
     if response.status_code != 200:
         raise Exception(f"Failed to fetch data from {url}. RESPONSE CODE: {response.status_code}")
@@ -40,77 +52,84 @@ def give_reachable_cities(json_data):
     cities_dict = {city_info["name"]: city_info["uuid"] for city_info in data["result"] if city_info["country"] == "GB"}
     return cities_dict
 
-def create_flixbus_datatree(json_data, max_entries, is_test_mode=False):
-    datatree = {}
-    entry_count = 0  # Counter to keep track of processed entries
+def city_neighbours_entry(JSON_bus_stop_path, legacy_id_param, is_test_mode=False):
+    name, uuid = fetch_name_and_UUID_given_legacy_ID_from_JSON(legacy_id_param, JSON_bus_stop_path)
+    url = reachable_URL_call(uuid)
+    try:
+        fetched_data = fetch_global_api(url)
+        reachable_cities_dict = give_reachable_cities(fetched_data)
+        result = {
+            str(legacy_id_param): {
+                "name": name,
+                "uuid": uuid,
+                "neighbors": reachable_cities_dict
+            }
+        }
+    except Exception as e:
+        print(f"Error fetching data for city {name}. Error: {e}")
+        result = None  # Setting to None if there's an error.
+
+    if not is_test_mode:
+        print("--- Delaying 2 Seconds Before Next Request ---")
+        time.sleep(2)
     
-    # Loop through each city in the provided JSON data
-    for city_name, city_info in json_data.items():
-        # Check if the city has a UUID
-        if "uuid" in city_info:
-            # Create the API URL for the given UUID
-            url = reachable_URL_call(city_info["uuid"])
-            
-            try:
-                # Fetch the JSON data from the API
-                fetched_data = fetch_global_api(url)
-                
-                # Extract the names and UUIDs of the reachable cities from the fetched data
-                reachable_cities = give_reachable_cities(fetched_data)
-                #print(f'Found Nodes : {reachable_cities}')
-                
-                # Add the reachable cities to the data tree
-                datatree[city_name] = {
-                    "uuid": city_info["uuid"],
-                    "neighbors": reachable_cities
-                }
-                #print(f'Datatree Created : {datatree}')
-                
-                entry_count += 1  # Increment the counter
-                
-                if entry_count >= max_entries:
-                    break  # Exit the loop if the maximum entries limit is reached
-            
-            except Exception as e:
-                print(f"Error fetching data for city {city_name}. Error: {e}")
-            
-            # Only introduce delay if not in test mode
-            if not is_test_mode:
-                print("--- Delaying 2 Seconds Before Next Request ---")
-                time.sleep(2)
+    return result
+
+def _difference_between_dictionaries(old_dict, new_dict):
+    # Find keys that have been removed and added
+    removed_keys = set(old_dict.keys()) - set(new_dict.keys())
+    new_keys = set(new_dict.keys()) - set(old_dict.keys())
     
-    return datatree
+    # Create result dictionaries using dictionary comprehensions
+    removed_entries = {key: old_dict[key] for key in removed_keys}
+    new_entries = {key: new_dict[key] for key in new_keys}
+    
+    return {
+        "removed_entries": removed_entries,
+        "new_entries": new_entries
+    }
+
+class DataConflictException(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
 def append_to_json(datatree, filename):
-    # Check if file is empty
+    # Read existing data from file
     with open(filename, 'r') as file:
         file_contents = file.read()
-        if not file_contents.strip():
-            existing_data = {}
+        existing_data = json.loads(file_contents) if file_contents.strip() else {}
+
+    # Check for conflicts and merge data
+    for city_id, city_info in datatree.items():
+        if city_id in existing_data:
+            for key, value in city_info.items():
+                if key == "neighbors":
+                    differences = _difference_between_dictionaries(existing_data[city_id].get(key, {}), value)
+                    if differences["removed_entries"] or differences["new_entries"]:
+                        raise Exception(f"Changes detected in neighbors for city ID {city_id}. Removed: {differences['removed_entries']}, Added: {differences['new_entries']}")
+                if key in existing_data[city_id] and existing_data[city_id][key] != value:
+                    # Conflict found
+                    message = f"Conflict found for city ID {city_id} and key {key}. Existing: {existing_data[city_id][key]}, New: {value}."
+                    print(message)  # Non-intrusive exception: Printing error message
+                else:
+                    existing_data[city_id][key] = value
         else:
-            existing_data = json.loads(file_contents)
+            existing_data[city_id] = city_info
 
-    # Update the existing data with the new data (datatree)
-    for city_name, city_info in datatree.items():
-        city_name_cleaned = city_name.strip().lower()
-
-        if city_name_cleaned not in existing_data:
-            print(f"Appending data for city: {city_name}")
-            existing_data[city_name_cleaned] = {
-                "name": city_name,
-                "neighbors": city_info.get("neighbors", {})
-            }
-            if "uuid" in city_info:
-                existing_data[city_name_cleaned]["uuid"] = city_info["uuid"]
-        else:
-            print(f"Updating data for city: {city_name}")
-            if "name" in city_info:
-                existing_data[city_name_cleaned]['name'] = city_info["name"]
-            if "uuid" in city_info:
-                existing_data[city_name_cleaned]['uuid'] = city_info["uuid"]
-            if "neighbors" in city_info:
-                existing_data[city_name_cleaned]['neighbors'].update(city_info["neighbors"])
-
-    # Write the updated data back to the file
-    with open(filename, 'w') as file: 
+    # Write merged data back to the file
+    with open(filename, 'w') as file:
         json.dump(existing_data, file, indent=4)
+
+
+def create_flixbus_datatree(json_bus_stop_path, json_flixbus_tree_path, is_test_mode=False):
+    with open(json_bus_stop_path, 'r') as file:
+        bus_stop_contents = json.load(file)
+
+    for legacy_id, city_info in bus_stop_contents.items():
+        reachable_cities_tree = city_neighbours_entry(json_bus_stop_path, legacy_id, is_test_mode=True) # Set test mode to true so that we can see the delay here
+        append_to_json(reachable_cities_tree, json_flixbus_tree_path)
+        
+        if not is_test_mode:
+            print("--- Delaying 2 Seconds Before Next Request ---", flush=True)
+            time.sleep(2)
