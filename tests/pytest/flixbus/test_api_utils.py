@@ -89,6 +89,7 @@ class TestExtractNameAndUUID:
             self.function_to_test(input_data)
 
 # Test for append_name_and_UUID(legacy_id, city_name, city_id, file_path)
+# In Python, JSON keys are ALWAYS strings
 class TestAppendNameAndUUID:
     @pytest.fixture(autouse=True)
     def set_up(self, tmpdir):
@@ -111,6 +112,42 @@ class TestAppendNameAndUUID:
         }
         assert expected_output == self.function_to_test(60151, "Leeds", "52e0bf1d-25e5-49d0-888e-da8fbc0a25b5", self.JSON_file)
 
+    def test_append_name_and_UUID_str_ID_input(self):
+        mock_JSON = {
+            "60151": {"name": "name", "id": "code", "location": {"lon": "0.0", "lat": "0.0"}},
+            "51081": {"name": "name", "id": "code", "location": {"lon": "0.0", "lat": "0.0"}}
+        }
+        self._write_to_JSON_file(mock_JSON)
+        expected_output = {
+            "60151": {"name": "Leeds", "id": "52e0bf1d-25e5-49d0-888e-da8fbc0a25b5", "location": {"lon": "0.0", "lat": "0.0"}},
+            "51081": {"name": "name", "id": "code", "location": {"lon": "0.0", "lat": "0.0"}}
+        }
+        assert expected_output == self.function_to_test("60151", "Leeds", "52e0bf1d-25e5-49d0-888e-da8fbc0a25b5", self.JSON_file)
+    
+    def test_append_name_and_UUID_int_ID_JSON(self):
+        mock_JSON = {
+            60151: {"name": "name", "id": "code", "location": {"lon": "0.0", "lat": "0.0"}},
+            51081: {"name": "name", "id": "code", "location": {"lon": "0.0", "lat": "0.0"}}
+        }
+        self._write_to_JSON_file(mock_JSON)
+        expected_output = {
+            "60151": {"name": "Leeds", "id": "52e0bf1d-25e5-49d0-888e-da8fbc0a25b5", "location": {"lon": "0.0", "lat": "0.0"}},
+            "51081": {"name": "name", "id": "code", "location": {"lon": "0.0", "lat": "0.0"}}
+        }
+        assert expected_output == self.function_to_test("60151", "Leeds", "52e0bf1d-25e5-49d0-888e-da8fbc0a25b5", self.JSON_file)
+        
+    def append_name_and_UUID_int_ID_JSON_and_Input(self):
+        mock_JSON = {
+            60151: {"name": "name", "id": "code", "location": {"lon": "0.0", "lat": "0.0"}},
+            51081: {"name": "name", "id": "code", "location": {"lon": "0.0", "lat": "0.0"}}
+        }
+        self._write_to_JSON_file(mock_JSON)
+        expected_output = {
+            "60151": {"name": "Leeds", "id": "52e0bf1d-25e5-49d0-888e-da8fbc0a25b5", "location": {"lon": "0.0", "lat": "0.0"}},
+            "51081": {"name": "name", "id": "code", "location": {"lon": "0.0", "lat": "0.0"}}
+        }
+        assert expected_output == self.function_to_test(60151, "Leeds", "52e0bf1d-25e5-49d0-888e-da8fbc0a25b5", self.JSON_file)
+        
     def test_missing_key(self):
         mock_JSON = {
             "60151": {"name": "name", "id": "code", "location": {"lon": "0.0", "lat": "0.0"}}
@@ -126,6 +163,28 @@ class TestAppendNameAndUUID:
         self._write_to_JSON_file(mock_JSON)
         with pytest.raises(TypeError):
             self.function_to_test(60151, "CityName", "city-id", self.JSON_file)
+
+# Test for create_fetch_name_and_UUID_URL(legacy_id)
+class TestCreateFetchNameAndUUIDURL:
+    def setup_method(self):
+        self.function_to_test = api_utils.create_fetch_location_URL
+
+    def test_returns_correct_url_for_valid_name(self):
+        name = "Aberdeen"
+        expected_url = f"https://global.api.flixbus.com/search/autocomplete/cities?q=Aberdeen&lang=en&country=gb&flixbus_cities_only=false&stations=false"
+        result = self.function_to_test(name)
+        assert result == expected_url, f"Expected {expected_url} but got {result}"
+    
+    def test_returns_correct_url_for_name_with_space(self):
+        name = "Heathrow Airport"
+        expected_url = f"https://global.api.flixbus.com/search/autocomplete/cities?q=Heathrow-Airport&lang=en&country=gb&flixbus_cities_only=false&stations=false"
+        result = self.function_to_test(name)
+        assert result == expected_url, f"Expected {expected_url} but got {result}"
+
+    @pytest.mark.parametrize('invalid_name', [123.45, -12345, None])
+    def test_invalid_id_raises_error(self, invalid_name):
+        with pytest.raises(ValueError, match="name must be a String."):
+            self.function_to_test(invalid_name)
 
 # Test for extract_lat_and_lon(data: list) -> tuple
 class TestExtractLatAndLon:
@@ -150,23 +209,10 @@ class TestExtractLatAndLon:
         }
         ]
         expected_output = 51.1679201, -1.7629783
-        self._assert_extraction(input_data, expected_output)
+        self._assert_extraction(input_data, expected_output, 51081)
     
     def test_multiple_dictionaries_in_list(self):
         input_data = [
-            {
-                "score":62.36875,
-                "country":"gb",
-                "has_train_station":False,
-                "district":None,
-                "name":"Amesbury",
-                "legacy_id":51081,
-                "location":{"lat":51.1679201,"lon":-1.7629783},
-                "timezone_offset_seconds":3600,
-                "id":"ce39aa68-df35-4462-a239-1edd92241574",
-                "stations":[],
-                "is_flixbus_city":True
-            },
             {
                 "score":63.1475,
                 "country":"gb",
@@ -179,36 +225,50 @@ class TestExtractLatAndLon:
                 "id":"ae35de47-gh35-3456-a456-2fgh98765432",
                 "stations":[],
                 "is_flixbus_city":True
+            },
+            {
+                "score":62.36875,
+                "country":"gb",
+                "has_train_station":False,
+                "district":None,
+                "name":"Amesbury",
+                "legacy_id":51081,
+                "location":{"lat":51.1679201,"lon":-1.7629783},
+                "timezone_offset_seconds":3600,
+                "id":"ce39aa68-df35-4462-a239-1edd92241574",
+                "stations":[],
+                "is_flixbus_city":True
             }
         ]
         expected_output = 51.1679201, -1.7629783
-        self._assert_extraction(input_data, expected_output)
+        self._assert_extraction(input_data, expected_output, 51081)
 
     @pytest.mark.parametrize(
-        "input_data, exception, match_text",
+        "input_data, exception, match_text, legacy_id",
         [
             # Test case for empty list
-            ([], ValueError, "Data should be a non-empty list of dictionaries."),
+            ([], ValueError, "Data should be a non-empty list of dictionaries.", 60151),
             # Test case for missing keys
-            ([{"legacy_id":43121,"country_code":"GB","timezone_offset":3600}], ValueError, "Data is missing lat or lon."),
+            ([{"legacy_id":43121,"country_code":"GB","timezone_offset":3600}], ValueError, "Data is missing lat or lon.", 43121),
             # Test case for non-dictionary item in list
-            (["not a dictionary", 123, 456], ValueError, None),
+            (["not a dictionary", 123, 456], ValueError, None, 60151),
         ]
     )
-    def test_error_cases(self, input_data, exception, match_text):
-        self._assert_raises(exception, match_text, input_data)
+    def test_error_cases(self, input_data, exception, match_text, legacy_id):
+        self._assert_raises(exception, match_text, input_data, legacy_id)
     
-    def _assert_extraction(self, input_data, expected_output):
-        result = self.function_to_test(input_data)
+    def _assert_extraction(self, input_data, expected_output, legacy_id):
+        result = self.function_to_test(input_data, legacy_id)
         assert result == expected_output, f"Expected {expected_output} but got {result}"
 
-    def _assert_raises(self, exception, match_text, input_data):
+
+    def _assert_raises(self, exception, match_text, input_data, legacy_id):
         if match_text:
             with pytest.raises(exception, match=match_text):
-                self.function_to_test(input_data)
+                self.function_to_test(input_data, legacy_id)
         else:
             with pytest.raises(exception):
-                self.function_to_test(input_data)
+                self.function_to_test(input_data, legacy_id)
 
 # Test for append_lat_and_lon(legacy_id, lat, lon, file_path)
 class TestAppendLonAndLat:
@@ -223,13 +283,49 @@ class TestAppendLonAndLat:
 
     def test_append_lon_and_lat_expected(self):
         mock_JSON = {
-            "60151": {"name": "name", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}},
-            "51081": {"name": "name", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}}
+            "60151": {"name": "name1", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}},
+            "51081": {"name": "name2", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}}
         }
         self._write_to_JSON_file(mock_JSON)
         expected_output = {
-            "60151": {"name": "name", "id": "code", "location": {"lat": 51.1679201, "lon": -1.7629783}},
-            "51081": {"name": "name", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}}
+            "60151": {"name": "name1", "id": "code", "location": {"lat": 51.1679201, "lon": -1.7629783}},
+            "51081": {"name": "name2", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}}
+        }
+        assert expected_output == self.function_to_test(60151, 51.1679201, -1.7629783, self.JSON_file)
+        
+    def test_append_lon_and_lat_str_ID(self):
+        mock_JSON = {
+            "60151": {"name": "name1", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}},
+            "51081": {"name": "name2", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}}
+        }
+        self._write_to_JSON_file(mock_JSON)
+        expected_output = {
+            "60151": {"name": "name1", "id": "code", "location": {"lat": 51.1679201, "lon": -1.7629783}},
+            "51081": {"name": "name2", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}}
+        }
+        assert expected_output == self.function_to_test("60151", 51.1679201, -1.7629783, self.JSON_file)
+        
+    def test_append_lon_and_lat_int_JSON(self):
+        mock_JSON = {
+            60151: {"name": "name1", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}},
+            51081: {"name": "name2", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}}
+        }
+        self._write_to_JSON_file(mock_JSON)
+        expected_output = {
+            "60151": {"name": "name1", "id": "code", "location": {"lat": 51.1679201, "lon": -1.7629783}},
+            "51081": {"name": "name2", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}}
+        }
+        assert expected_output == self.function_to_test("60151", 51.1679201, -1.7629783, self.JSON_file)
+        
+    def test_append_lon_and_lat_int_ID_Input_and_JSON(self):
+        mock_JSON = {
+            60151: {"name": "name1", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}},
+            51081: {"name": "name2", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}}
+        }
+        self._write_to_JSON_file(mock_JSON)
+        expected_output = {
+            "60151": {"name": "name1", "id": "code", "location": {"lat": 51.1679201, "lon": -1.7629783}},
+            "51081": {"name": "name2", "id": "code", "location": {"lat": "0.0", "lon": "0.0"}}
         }
         assert expected_output == self.function_to_test(60151, 51.1679201, -1.7629783, self.JSON_file)
 
@@ -327,16 +423,47 @@ class TestUpdateBusStops:
             return json.load(file)
 
     @patch('api_utils.fetch_global_api', side_effect=mock_fetch_global_api)
-    def test_updates_as_expected(self, mock_fetch_global_api):
+    def test_names_updated(self, mock_fetch_global_api):
         mock_JSON = {
             "60151": {"name": "name", "id": "code", "location": {"lon": "0.0", "lat": "0.0"}},
         }
+        self.JSON_file_path.write("")
+        self._write_to_JSON_file(mock_JSON)
+        expected_output = {
+            "60151": {"name": "Aberdeen", "id": "4588b4ab-79ea-4c6d-88ae-30b58611f263", "location": {"lat": "0.0", "lon": "0.0"}},
+        }
+        data = self._read_JSON_file()
+        api_utils._update_data(data, self.JSON_file_path, api_utils.url_for_name_and_UUID, api_utils.extract_for_name_and_UUID, api_utils.append_name_and_UUID, is_test_mode = True)
+
+        #api_utils._update_names_and_UUID(data, self.JSON_file_path, is_test_mode = True)
+        assert self._read_JSON_file() == expected_output
+
+    @patch('api_utils.fetch_global_api', side_effect=mock_fetch_global_api)
+    def test_location_updated(self, mock_fetch_global_api):
+        mock_JSON = {
+            "60151": {"name": "Aberdeen", "id": "4588b4ab-79ea-4c6d-88ae-30b58611f263", "location": {"lon": "0.0", "lat": "0.0"}},
+        }
+        self.JSON_file_path.write("")
+        self._write_to_JSON_file(mock_JSON)
+        expected_output = {
+            "60151": {"name": "Aberdeen", "id": "4588b4ab-79ea-4c6d-88ae-30b58611f263", "location": {"lat": 57.149717, "lon": -2.094278}},
+        }
+        data = self._read_JSON_file()
+        api_utils._update_data(data, self.JSON_file_path,  api_utils.url_for_location, api_utils.extract_for_location, api_utils.append_lat_and_lon, is_test_mode = True)
+        #api_utils._update_location(data, self.JSON_file_path, is_test_mode = True)
+        assert self._read_JSON_file() == expected_output
+    
+    @patch('api_utils.fetch_global_api', side_effect=mock_fetch_global_api)
+    def updates_as_expected(self, mock_fetch_global_api):
+        mock_JSON = {
+            "60151": {"name": "name", "id": "code", "location": {"lon": "0.0", "lat": "0.0"}},
+        }
+        self.JSON_file_path.write("")
         self._write_to_JSON_file(mock_JSON)
         expected_output = {
             "60151": {"name": "Aberdeen", "id": "4588b4ab-79ea-4c6d-88ae-30b58611f263", "location": {"lat": 57.149717, "lon": -2.094278}},
         }
 
         # Call the function with the JSON file path
-        self.function_to_test(self.JSON_file_path.strpath, is_test_mode=True)
-
+        self.function_to_test(self.JSON_file_path, is_test_mode=True)
         assert self._read_JSON_file() == expected_output
