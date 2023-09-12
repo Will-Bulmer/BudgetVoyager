@@ -12,6 +12,12 @@ project(BudgetVoyager)
 find_package(Catch2 REQUIRED)
 find_package(Python3 COMPONENTS Interpreter)
 
+# Here, we control the packages for QML
+set(CMAKE_PREFIX_PATH "/usr/lib/x86_64-linux-gnu/cmake")
+# set(CMAKE_PREFIX_PATH "/usr/lib/qt5")
+find_package(Qt5 COMPONENTS Core Quick REQUIRED)
+
+
 # INCLUDE DIRECTORIES FOR EXECUTABLES
 # target_include_directories(runAlgorithm PRIVATE ${CMAKE_SOURCE_DIR}/input)
 # For the main script target
@@ -24,6 +30,7 @@ add_custom_target(run_main_script
 )
 add_custom_target(run_gui_script
     COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}" ${CMAKE_SOURCE_DIR}/input/GUI.py
+    #COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}" ${CMAKE_SOURCE_DIR}/input/qml_backend.py
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Executing GUI.py"
     VERBATIM
