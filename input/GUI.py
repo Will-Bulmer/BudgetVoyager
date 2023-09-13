@@ -44,6 +44,8 @@ class JSONBackend(QObject):
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 GUI_PATH = os.path.join(BASE_DIR,'main.qml')
+#GUI_PATH = os.path.join(BASE_DIR,'Main.qml')
+
 #JSON_PATH = os.path.join(BASE_DIR, 'flixbus/bus_stops.json')
 
 def main():
