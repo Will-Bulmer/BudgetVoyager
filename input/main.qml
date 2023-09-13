@@ -1,12 +1,10 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import "." as InputDir
 
 // Path might need setting every time?
 // export QML2_IMPORT_PATH=/home/will_bulmer/.local/lib/python3.10/site-packages/PyQt6/Qt6/qml
 // echo $QML2_IMPORT_PATH
-
-// TODO: Validate JSON data before preceding. Need error handling and tests for all qml functionality. Introduce retry mechanisms.
-// TODO: Take out all functionality into a separate qml file? Or header file?
 
 
 ApplicationWindow {
@@ -15,7 +13,9 @@ ApplicationWindow {
     height: 500
     title: "Textbox with Dynamic Dropdown"
     color: "white"
-
+    InputDir.UtilityFunctions {
+    id: utilityFunctions
+    }
     property var fullList : [""]
 
     Component.onCompleted: {
@@ -47,8 +47,8 @@ ApplicationWindow {
                 }
 
                 // Update both input models initially after loading the JSON
-                updateModel("", filteredModelLeft, "");
-                updateModel("", filteredModelRight, "");
+                utilityFunctions.updateModel("", filteredModelLeft, "");
+                utilityFunctions.updateModel("", filteredModelRight, "");
             } catch (error) {
                 console.error("Failed to parse JSON data:", error);
             }
@@ -58,36 +58,6 @@ ApplicationWindow {
             console.error("Failed to load JSON data:", errorMessage);
         }
     }
-
-    function updateModel(inputText, modelToUpdate, otherTextboxValue) {
-    modelToUpdate.clear();
-    for (var i = 0; i < fullList.length; i++) {
-        var itemName = fullList[i];
-        if ((itemName.toLowerCase().startsWith(inputText.toLowerCase()) || inputText === "") 
-            && itemName !== otherTextboxValue) {
-            modelToUpdate.append({"name": itemName});
-        }
-    }
-}
-
-    function highlightText(fullText, searchText) {
-        if (!fullText) return "";
-        if (searchText === "") return fullText;
-        var regExp = new RegExp("(" + searchText + ")", "ig");
-        return fullText.replace(regExp, "<span style='background-color: yellow'>$1</span>");
-    }
-
-    function handleVisibilityFor(textInput, dropDownListView, otherDropDownListView) {
-        dropDownListView.visible = (textInput.text.length > 0);
-        otherDropDownListView.visible = false;
-    }
-
-    /*
-    Component.onCompleted: {
-        updateModel("", filteredModelLeft);
-        updateModel("", filteredModelRight);
-    }
-    */
 
     Item {
         id: inputBoxesContainer

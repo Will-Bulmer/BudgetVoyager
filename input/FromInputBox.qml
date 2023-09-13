@@ -1,8 +1,15 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+//import "./UtilityFunctions.qml" as UF
+import "." as InputDir
+
+
 
 
 Item {
+    InputDir.UtilityFunctions {
+    id: utilityFunctions
+    }
     property string boxLabel: "From"
     property var filteredModel: undefined  // Placeholder for the filtered model
 
@@ -61,7 +68,7 @@ Item {
                     anchors.left: parent.left
                     anchors.leftMargin: parent.width * 0.10
                     anchors.verticalCenter: parent.verticalCenter
-                    text: highlightText(model.name, textInputLeft.text)
+                    text: utilityFunctions.highlightText(model.name, textInputLeft.text)
                     color: "black"
                     textFormat: Text.RichText
                 }
@@ -125,8 +132,8 @@ Item {
             verticalAlignment: TextInput.AlignVCenter
             leftPadding: locationIconLeft.width + 10
             onTextChanged: {
-                updateModel(text, filteredModelLeft, textInputRight.text);
-                handleVisibilityFor(textInputLeft, dropDownListViewLeft, dropDownListViewRight);
+                utilityFunctions.updateModel(text, filteredModelLeft, textInputRight.text);
+                utilityFunctions.handleVisibilityFor(textInputLeft, dropDownListViewLeft, dropDownListViewRight);
             }
 
             onActiveFocusChanged: {
