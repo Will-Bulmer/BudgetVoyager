@@ -5,6 +5,15 @@ Item {
     property string boxLabel: "From"
     property var filteredModel: undefined  // Placeholder for the filtered model
 
+    // Giving Variables to the FromInputBox.qml
+    property alias textInputRightAlias: textInputRight
+    property alias dropDownListViewRightAlias : dropDownListViewRight
+
+    // Getting Variables from the FromInputBox.qml
+    property var textInputLeft
+    property var dropDownListViewLeft
+
+    
     id: inputContainerRight
     height: parent.height
     width: inputBoxesContainer.width * 0.5 // 50% of the parent's width

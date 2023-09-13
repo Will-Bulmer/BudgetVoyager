@@ -5,7 +5,17 @@ import QtQuick.Controls 2.15
 Item {
     property string boxLabel: "From"
     property var filteredModel: undefined  // Placeholder for the filtered model
-    
+
+    // Giving Variables to the ToInputBox.qml
+    property alias textInputLeftAlias: textInputLeft
+    property alias dropDownListViewLeftAlias : dropDownListViewLeft
+
+
+    // Getting Variables from the ToInputBox.qml
+    property var textInputRight
+    property var dropDownListViewRight
+
+
     id: inputContainerLeft
     height: 54
     width: inputBoxesContainer.width * 0.5 // 50% of the parent's width

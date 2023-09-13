@@ -99,15 +99,25 @@ ApplicationWindow {
 
         // Include fromBox.qml (LEFT)
         FromInputBox {
+            id: fromInputComponent
             boxLabel: "From"
             filteredModel: filteredModelLeft
+            
+            // Exchanging variables between child modules
+            textInputRight: toInputComponent.textInputRightAlias
+            dropDownListViewRight : toInputComponent.dropDownListViewRightAlias
             anchors.left: parent.left
             // ... any other properties or configurations specific to this instance ...
         }
         // The right input box ("To")
         ToInputBox {
+            id: toInputComponent
             boxLabel: "To"
             filteredModel: filteredModelRight
+            // Exchanging variables between child modules
+            textInputLeft: fromInputComponent.textInputLeftAlias
+            dropDownListViewLeft : fromInputComponent.dropDownListViewLeftAlias
+
             anchors.right: parent.right
             // ... any other properties or configurations specific to this instance ...
         }
