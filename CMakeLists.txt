@@ -29,7 +29,7 @@ add_custom_target(run_main_script
     VERBATIM
 )
 add_custom_target(run_gui_script
-    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}" ${CMAKE_SOURCE_DIR}/input/GUI.py
+    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}" ${CMAKE_SOURCE_DIR}/input/GUI/GUI.py
     #COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}" ${CMAKE_SOURCE_DIR}/input/qml_backend.py
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Executing GUI.py"
@@ -101,5 +101,27 @@ if(Python3_Interpreter_FOUND)
         PROPERTIES 
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         ENVIRONMENT "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}"
+    )
+endif()
+
+# GUI TESTS
+if(Python3_Interpreter_FOUND)
+    add_test(
+        NAME pytest_GUI
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/GUI/test_GUI.py
+    )
+    set_tests_properties(pytest_GUI
+        PROPERTIES 
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input/GUI:$ENV{PYTHONPATH}"
+    )
+    add_test(
+        NAME pytest_GUI_UtilityFunctions
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests/pytest/GUI/test_UtilityFunctions.py
+    )
+    set_tests_properties(pytest_GUI_UtilityFunctions
+        PROPERTIES 
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input/GUI:$ENV{PYTHONPATH}"
     )
 endif()

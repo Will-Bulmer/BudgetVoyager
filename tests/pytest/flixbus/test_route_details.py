@@ -47,22 +47,22 @@ class TestIsValidDate:
         assert route_details.is_valid_date("01.1.2022")  == False, "Failed on case 01.1.2022"
         assert route_details.is_valid_date("01.01.22")   == False, "Failed on case 01.01.22"
         assert route_details.is_valid_date("29022020")   == False, "Failed on case 29022020"
-    
-          
+            
 class TestsURLCall:
 
+    @staticmethod
     def _check_value_error(func, *args):
         with pytest.raises(ValueError):
             func(*args)
 
-    def correct_url_given_uuids(self):
+    def test_correct_url_given_uuids(self):
         UUID_FROM = "37270b23-e4a9-45e3-92a6-06bd94ed417b" # Exeter
-        UUID_TO = "8aa5378a-5f22-429c-88f7-2468ffab" # Bristol
+        UUID_TO = "8aa5378a-5f22-429c-88f7-2468ffab2757" # Bristol
         departure_date = "12.09.2023"
         expected_result = (
             f"https://global.api.flixbus.com/search/service/v4/search?"
             f"from_city_id=37270b23-e4a9-45e3-92a6-06bd94ed417b&"
-            f"to_city_id=8aa5378a-5f22-429c-88f7-2468ffab&"
+            f"to_city_id=8aa5378a-5f22-429c-88f7-2468ffab2757&"
             f"departure_date=12.09.2023&"
             f"products=%7B%22adult%22%3A1%7D&"
             f"currency=GBP&"
@@ -70,7 +70,7 @@ class TestsURLCall:
             f"search_by=cities&"
             f"include_after_midnight_rides=1"
         )
-        assert route_details.route_details_URL_call(UUID_FROM, UUID_TO, departure_date)
+        assert route_details.route_details_URL_call(UUID_FROM, UUID_TO, departure_date) == expected_result
             
     @pytest.mark.parametrize(
         "UUID_FROM, UUID_TO, departure_date, test_description",
@@ -85,7 +85,7 @@ class TestsURLCall:
             ("37270b23-e4a9-45e3-92a6-06bd94ed417b", "8aa5378a-5f22-429c-88f7-2468ffab", "", "Empty departure date")  # Testing empty departure date
         ]
     )
-    def test_value_errors(UUID_FROM, UUID_TO, departure_date, test_description):
-        _check_value_error(route_details.route_details_URL_call, UUID_FROM, UUID_TO, departure_date)
+    def test_value_errors(self, UUID_FROM, UUID_TO, departure_date, test_description):
+        TestsURLCall._check_value_error(route_details.route_details_URL_call, UUID_FROM, UUID_TO, departure_date)
  
    
