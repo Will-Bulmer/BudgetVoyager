@@ -1,6 +1,7 @@
 import QtQuick 2.15
 
 QtObject {
+    objectName: "testObject" // Only named for testing purposes.
     function updateModel(inputText, modelToUpdate, otherTextboxValue) {
         modelToUpdate.clear();
         for (var i = 0; i < fullList.length; i++) {
