@@ -5,6 +5,8 @@ import QtQuick.Controls 2.15
 // export QML2_IMPORT_PATH=/home/will_bulmer/.local/lib/python3.10/site-packages/PyQt6/Qt6/qml
 // echo $QML2_IMPORT_PATH
 
+// TODO: Validate JSON data before preceding. Need error handling and tests for all qml functionality. Introduce retry mechanisms.
+// TODO: Take out all functionality into a separate qml file? Or header file?
 
 
 ApplicationWindow {
@@ -14,23 +16,23 @@ ApplicationWindow {
     title: "Textbox with Dynamic Dropdown"
     color: "white"
 
-    //property var fullList: ["Apple", "Banana", "Berry", "Cherry", "Date", "Fig"]
-    
+    property var fullList : [""]
+
     Component.onCompleted: {
-        //console.log("Is jsonBackend available?", (typeof jsonBackend !== "undefined" && jsonBackend));
+        target: jsonBackend
         Qt.callLater(function() {
+            console.log("Attempting to open JSON file");
             jsonBackend.loadJSON("input/flixbus/bus_stops.json");
         });
     }
 
     Connections {
-        target: (typeof jsonBackend !== "undefined" && jsonBackend) ? jsonBackend : null
+        target: jsonBackend
 
-
-        function jsonLoaded() {
-            console.log("Is jsonBackend available?", (typeof jsonBackend !== "undefined" && jsonBackend));
-            console.log("Code Block Entered");
-            if (jsonBackend && jsonBackend.jsonData) {
+        function onJsonLoaded() {
+            console.log("JSON data loaded successfully");
+            
+            try {
                 var parsedData = JSON.parse(jsonBackend.jsonData);
                 
                 // Reset the fullList and filteredModels
@@ -47,25 +49,13 @@ ApplicationWindow {
                 // Update both input models initially after loading the JSON
                 updateModel("", filteredModelLeft, "");
                 updateModel("", filteredModelRight, "");
+            } catch (error) {
+                console.error("Failed to parse JSON data:", error);
             }
         }
-    }
 
-    Text {
-        id: debugText
-        anchors.top: parent.top
-        text: (typeof jsonBackend !== "undefined" && jsonBackend) ? 
-            "JSON Data: " + jsonBackend.jsonData : 
-            "JSON Data not loaded"
-    }
-        Button {
-        text: "Load JSON Data"
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: debugText.bottom
-        onClicked: {
-            jsonBackend.loadJSON("input/flixbus/bus_stops.json");  // Trigger loading of JSON
-            console.log("Is jsonBackend available?", (typeof jsonBackend !== "undefined" && jsonBackend));
-            console.log("Code Block Entered");
+        function onJsonLoadError(errorMessage) {
+            console.error("Failed to load JSON data:", errorMessage);
         }
     }
 
