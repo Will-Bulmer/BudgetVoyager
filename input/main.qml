@@ -15,22 +15,70 @@ ApplicationWindow {
     color: "white"
 
     //property var fullList: ["Apple", "Banana", "Berry", "Cherry", "Date", "Fig"]
+    
     Component.onCompleted: {
-        jsonBackend.loadJSON("flixbus/bus_stops.json");  // Trigger loading of JSON
+        //console.log("Is jsonBackend available?", (typeof jsonBackend !== "undefined" && jsonBackend));
+        Qt.callLater(function() {
+            jsonBackend.loadJSON("input/flixbus/bus_stops.json");
+        });
     }
+
     Connections {
-    target: jsonBackend
-    onJsonLoaded: {
-        var parsedData = JSON.parse(jsonData);
-        filteredModelLeft.clear();  // Clear existing data
-        filteredModelRight.clear();  // Clear existing data
-        for (var key in parsedData) {
-            filteredModelLeft.append({"name": parsedData[key].name});
-            filteredModelRight.append({"name": parsedData[key].name});
+        target: (typeof jsonBackend !== "undefined" && jsonBackend) ? jsonBackend : null
+
+
+        function jsonLoaded() {
+            console.log("Is jsonBackend available?", (typeof jsonBackend !== "undefined" && jsonBackend));
+            console.log("Code Block Entered");
+            if (jsonBackend && jsonBackend.jsonData) {
+                var parsedData = JSON.parse(jsonBackend.jsonData);
+                
+                // Reset the fullList and filteredModels
+                fullList = [];
+                filteredModelLeft.clear();
+                filteredModelRight.clear();
+                
+                for (var key in parsedData) {
+                    fullList.push(parsedData[key].name);
+                    filteredModelLeft.append({"name": parsedData[key].name});
+                    filteredModelRight.append({"name": parsedData[key].name});
+                }
+
+                // Update both input models initially after loading the JSON
+                updateModel("", filteredModelLeft, "");
+                updateModel("", filteredModelRight, "");
             }
         }
     }
 
+    Text {
+        id: debugText
+        anchors.top: parent.top
+        text: (typeof jsonBackend !== "undefined" && jsonBackend) ? 
+            "JSON Data: " + jsonBackend.jsonData : 
+            "JSON Data not loaded"
+    }
+        Button {
+        text: "Load JSON Data"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: debugText.bottom
+        onClicked: {
+            jsonBackend.loadJSON("input/flixbus/bus_stops.json");  // Trigger loading of JSON
+            console.log("Is jsonBackend available?", (typeof jsonBackend !== "undefined" && jsonBackend));
+            console.log("Code Block Entered");
+        }
+    }
+
+    function updateModel(inputText, modelToUpdate, otherTextboxValue) {
+    modelToUpdate.clear();
+    for (var i = 0; i < fullList.length; i++) {
+        var itemName = fullList[i];
+        if ((itemName.toLowerCase().startsWith(inputText.toLowerCase()) || inputText === "") 
+            && itemName !== otherTextboxValue) {
+            modelToUpdate.append({"name": itemName});
+        }
+    }
+}
 
     function highlightText(fullText, searchText) {
         if (!fullText) return "";
@@ -39,26 +87,17 @@ ApplicationWindow {
         return fullText.replace(regExp, "<span style='background-color: yellow'>$1</span>");
     }
 
-    function updateModel(inputText, modelToUpdate, otherTextboxValue) {
-        modelToUpdate.clear();
-        for (var i = 0; i < citiesModel.count; i++) {
-            var cityName = citiesModel.get(i).name;
-            if ((cityName.toLowerCase().startsWith(inputText.toLowerCase()) || inputText === "") 
-                && cityName !== otherTextboxValue) {
-                modelToUpdate.append({"name": cityName});
-            }
-        }
-    }
-
     function handleVisibilityFor(textInput, dropDownListView, otherDropDownListView) {
         dropDownListView.visible = (textInput.text.length > 0);
         otherDropDownListView.visible = false;
     }
 
+    /*
     Component.onCompleted: {
         updateModel("", filteredModelLeft);
         updateModel("", filteredModelRight);
     }
+    */
 
     Item {
         id: inputBoxesContainer
