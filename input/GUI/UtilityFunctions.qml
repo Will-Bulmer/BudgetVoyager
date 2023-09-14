@@ -21,7 +21,14 @@ QtObject {
     }
 
     function handleVisibilityFor(textInput, dropDownListView, otherDropDownListView) {
-        dropDownListView.visible = (textInput.text.length > 0);
+        console.log("handleVisibilityFor called");
+
+        if(textInput && textInput.text) {
+            dropDownListView.visible = (textInput.text.length > 0);
+        } else {
+            dropDownListView.visible = false;
+        }
         otherDropDownListView.visible = false;
     }
+
 }
