@@ -1,10 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15 // Necessary for the RowLayout
 //import "./UtilityFunctions.qml" as UF
 import "." as InputDir
-
-
-
 
 Item {
     InputDir.UtilityFunctions {
@@ -14,65 +12,93 @@ Item {
     id: inputContainerDate
     height: parent.height
 
-    ListView {
-        id: dropDownListViewDate
-        width: 1.5*parent.width // Done the math. This will not go off the side of the app.
-        y: parent.y + parent.height
-        visible: textInputDate.activeFocus
-        anchors.left: parent.left
-
-        model: ["Mon", "Tues"]
-        height: 30*7
-        clip: true
-        ScrollBar.vertical: ScrollBar {}
-
-        Rectangle {
-            color: "transparent"
-            border.color: "lightgray"
-            border.width: 1
-            radius: 4
-            anchors.fill: parent
+    // Model for the days of the month
+    property var daysOfTheMonth: []
+    Component.onCompleted: {
+        for(var i = 1; i <= 31; i++) {
+            daysOfTheMonth.push(i);
         }
-        header: Rectangle {
-            width: parent.width
-            height: 30
-            color: "#e0e0e0"
-            Label {
-                text: "Current Month Page"
-                anchors.centerIn: parent
-                color: "black"
-                font.bold: true
-            }
-        }
-        // Each item within the ListView
-        delegate: Item {
-            width: dropDownListViewDate.width
-            height: 30
+    }
+
+    // POPUP    
+    Rectangle {
+        id: popupDate
+        y: textInputWrapperDate.y + textInputWrapperDate.height
+        visible: false
+        width: parent.width
+        color: "white"
+        border.color: "black"
+        border.width: 5
+        anchors.right: textInputWrapperDate.right
+
+        ColumnLayout {
+            anchors.fill: parent // Ensure ColumnLayout takes the full width and height of popupDate
+            spacing: 5
+
+            // Month Header
             Rectangle {
+                Layout.fillWidth: true
                 width: parent.width
                 height: 30
-                color: mouseArea.containsMouse ? "#d0d0d0" : "white"
-                Text {
-                    anchors.left: parent.left
-                    anchors.leftMargin: parent.width * 0.10
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: model.name
+                color: "#e0e0e0"
+                Label {
+                    text: "September 2023"
+                    anchors.centerIn: parent
                     color: "black"
-                    textFormat: Text.RichText
+                    font.bold: true
                 }
-                MouseArea {
-                    id: mouseArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                onClicked: {
-                    textInputDate.text = model.name;
-                    textInputDate.selectionMade = true;
-                    dropDownListViewDate.visible = false;
+            }
+
+            // Days of the week header
+            RowLayout {
+                Layout.fillWidth: true
+                height: 30
+                Repeater {
+                    model: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+                    delegate: Label {
+                        width: parent.width / 7
+                        height: 30
+                        text: modelData
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        color: "grey"
+                        font.bold: true
+                        Layout.alignment: Qt.AlignCenter
+                    }
+                }
+            }
+
+            // Days of the month in GridView
+            GridView {
+                Layout.fillWidth: true
+                height: 250
+                cellWidth: width / 7
+                cellHeight: 40
+                model: daysOfTheMonth
+
+                delegate: Rectangle {
+                    width: gridView.cellWidth
+                    height: gridView.cellHeight
+                    color: "white"
+                    border.color: "lightgray"
+                    Text {
+                        anchors.centerIn: parent
+                        text: modelData
+                        color: "black"
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            // Handle day click
+                            console.log("Clicked day:", modelData);
+                        }
                     }
                 }
             }
         }
     }
+    // TITLE
     Rectangle {
         width: parent.width / 3
         height: parent.height/2
@@ -85,6 +111,7 @@ Item {
             anchors.centerIn: parent
         }
     }
+    // TEXTBOX
     Rectangle {
         id: textInputWrapperDate
         width: parent.width
@@ -107,12 +134,8 @@ Item {
 
         TextInput {
             id: textInputDate
-
-            property bool selectionMade: false 
-            property string previousSelection: "" 
-            property bool italicizeLeft: false 
-            font.italic: italicizeLeft 
-
+            property bool selectionMade: false  // Add this property
+            property string previousSelection: ""  // New property
 
             width: parent.width - 4
             height: parent.height - 4
@@ -120,12 +143,30 @@ Item {
             verticalAlignment: TextInput.AlignVCenter
             leftPadding: locationIconDate.width + 10
 
-            onActiveFocusChanged: {
-                if (!activeFocus && !selectionMade) {
-                    text = "";
+            readOnly: true
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    popupDate.visible = true;
                 }
-                if (activeFocus && text === "") {
-                    selectionMade = false;  // Reset the flag when the box is focused again
+            }
+
+            onActiveFocusChanged: {
+                if (!activeFocus) {
+                    popupDate.visible = false;
+                    if (!selectionMade) {
+                        text = "";
+                    }
+                }
+            }
+
+            Connections {
+                target: popupDate
+                function onVisibleChanged() {
+                if (!popupDate.visible) {
+                    textInputDate.selectionMade = false;
+                    }
                 }
             }
         }

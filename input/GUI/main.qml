@@ -6,6 +6,8 @@ import "." as InputDir
 // export QML2_IMPORT_PATH=/home/will_bulmer/.local/lib/python3.10/site-packages/PyQt6/Qt6/qml
 // echo $QML2_IMPORT_PATH
 
+// TO DO: Need better control over popup visibilities. When any place not in the popup is clicked, it vanishes  
+// Also need to ensure that if a selection was not made and the popup vanishes, that the text goes back to blank
 
 ApplicationWindow {
     visible: true
@@ -16,6 +18,17 @@ ApplicationWindow {
     InputDir.UtilityFunctions {
     id: utilityFunctions
     }
+    MouseArea {
+        id: fullScreenMouseArea
+        anchors.fill: parent
+        propagateComposedEvents: true // Allow other components to get the click events
+        
+        onClicked: {
+            fromInputComponent.dropDownListViewLeftAlias.visible = false;
+            toInputComponent.dropDownListViewRightAlias.visible = false;
+        }
+    }
+
     property var fullList : [""]
 
     Component.onCompleted: {

@@ -3,9 +3,6 @@ import QtQuick.Controls 2.15
 //import "./UtilityFunctions.qml" as UF
 import "." as InputDir
 
-
-
-
 Item {
     InputDir.UtilityFunctions {
     id: utilityFunctions
@@ -121,7 +118,6 @@ Item {
             property string previousSelection: ""  // New property
             property bool italicizeLeft: false  // New property to control italic styling
             font.italic: italicizeLeft  // Bind the font italic property to the 'italicize' property
-
 
             width: parent.width - 4
             height: parent.height - 4
