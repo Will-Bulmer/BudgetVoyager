@@ -21,7 +21,7 @@ QtObject {
     }
 
     function handleVisibilityFor(textInput, dropDownListView, otherDropDownListView) {
-        console.log("handleVisibilityFor called");
+        console.log("Received textInput:", textInput.text);
 
         if(textInput && textInput.text) {
             dropDownListView.visible = (textInput.text.length > 0);

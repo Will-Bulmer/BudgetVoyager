@@ -1,24 +1,47 @@
 import pytest
 import os
 import time
-from PyQt6 import QtCore
-from PyQt6.QtCore import QUrl, QObject
-from PyQt6.QtQml import QQmlApplicationEngine
-from PyQt6.QtGui import QGuiApplication
-from PyQt6.QtQml import QQmlComponent
+from PyQt6 import QtCore, QtQml, QtGui
+from PyQt6.QtCore import QUrl, QObject, pyqtProperty, pyqtSignal
 
 @pytest.fixture(scope="session")
 def app():
-    return QGuiApplication([])
+    return QtGui.QGuiApplication([])
 
 @pytest.fixture(scope="session")
 def qml_engine(app):
-    return QQmlApplicationEngine()
+    return QtQml.QQmlApplicationEngine()
 
 @pytest.fixture
 def qml_context(qml_engine):
-    context = qml_engine.rootContext()
-    return context
+    return qml_engine.rootContext()
+
+@pytest.fixture
+def load_qml_file(qml_engine):
+    def _loader(file_path):
+        qml_engine.load(QUrl.fromLocalFile(file_path))
+        root_objects = qml_engine.rootObjects()
+        assert root_objects, f"Failed to load QML file: {file_path}"
+        return root_objects
+    return _loader
+
+class MockTextInput(QtCore.QObject):
+    textChanged = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+        self._text = ''
+
+    def _get_text(self):
+        return self._text
+
+    def _set_text(self, value):
+        if self._text != value:
+            self._text = value
+            self.textChanged.emit(self._text)
+
+    text = pyqtProperty(str, _get_text, _set_text, notify=textChanged)
+
 
 class MockListModel(QtCore.QObject):
     def __init__(self):
@@ -33,90 +56,65 @@ class MockListModel(QtCore.QObject):
     @QtCore.pyqtSlot(QtCore.QVariant)
     def append(self, item):
         self.items.append(item)
-        
-    @property
-    def visible(self) -> bool:
+            
+    # Getter for the visible property
+    def _get_visible(self):
         return self._visible
-
-    @visible.setter
-    def visible(self, value: bool):
+    # Setter for the visible property
+    def _set_visible(self, value):
         self._visible = value
 
-
+    visible = pyqtProperty(bool, _get_visible, _set_visible)
 
 class TestUtilityFunctions:
 
-    def test_updateModel(self, qml_engine, qml_context):
-        qml_file = "/home/will_bulmer/PROJECTS/BudgetVoyager/input/GUI/UtilityFunctions.qml"
-        qml_engine.load(QUrl.fromLocalFile(qml_file))
+    QML_FILE_PATH = "/home/will_bulmer/PROJECTS/BudgetVoyager/input/GUI/UtilityFunctions.qml"
 
-        # Check if the QML file has been loaded successfully
-        root_objects = qml_engine.rootObjects()
-        if not root_objects:
-            raise ValueError(f"Failed to load QML file: {qml_file}")
-
+    def get_test_object(self, root_objects):
         found_test_object = next((obj for obj in root_objects if obj.objectName() == "testObject"), None)
-        if not found_test_object:
-            raise ValueError("testObject not found in QML file.")
+        assert found_test_object, "testObject not found in QML file."
+        return found_test_object
+
+    def test_updateModel(self, qml_engine, qml_context, load_qml_file):
+        root_objects = load_qml_file(self.QML_FILE_PATH)
+        test_object = self.get_test_object(root_objects)
         
+        # Setup
         input_text = "test"
         mock_model = MockListModel()
         other_textbox_value = "other_value"
-
         full_list = ["test1", "test2", "other_value"]
         qml_context.setContextProperty("fullList", full_list)
+        assert hasattr(test_object, "updateModel")
 
-        if not hasattr(found_test_object, "updateModel"):
-            raise AttributeError("Method updateModel doesn't exist on testObject.")
-
-        found_test_object.updateModel(input_text, mock_model, other_textbox_value)
+        # Action
+        test_object.updateModel(input_text, mock_model, other_textbox_value)
         
+        # Assertions
         assert len(mock_model.items) == 2
         assert mock_model.items[0].toVariant() == {"name": "test1"}
         assert mock_model.items[1].toVariant() == {"name": "test2"}
 
-    def test_highlightText(self, qml_engine):
-        qml_file = "/home/will_bulmer/PROJECTS/BudgetVoyager/input/GUI/UtilityFunctions.qml"
-        qml_engine.load(QUrl.fromLocalFile(qml_file))
+    def test_highlightText(self, qml_engine, load_qml_file):
+        root_objects = load_qml_file(self.QML_FILE_PATH)
+        test_object = self.get_test_object(root_objects)
         
-        root_objects = qml_engine.rootObjects()
-        if not root_objects:
-            raise ValueError(f"Failed to load QML file: {qml_file}")
-
-        found_test_object = next((obj for obj in root_objects if obj.objectName() == "testObject"), None)
-
-        if not found_test_object:
-            raise ValueError("testObject not found in QML file.")
-        
-        if not hasattr(found_test_object, "highlightText"):
-            raise AttributeError("Method highlightText doesn't exist on testObject.")
-
-        result = found_test_object.highlightText("hello", "lo")
-        print(result)
+        assert hasattr(test_object, "highlightText")
+        result = test_object.highlightText("hello", "lo")
         assert '<span style=\'background-color: yellow\'>lo</span>' in result
 
-    # TESTED OMITTED. TOO MUCH HASSLE TRYING TO GET QT OBJECT TO SYNC WITH PYTHON OBJECT
-    def handleVisibilityFor(self, qml_engine):
-        qml_file = "/home/will_bulmer/PROJECTS/BudgetVoyager/input/GUI/UtilityFunctions.qml"
-        qml_engine.load(QUrl.fromLocalFile(qml_file))
+    def test_handleVisibilityFor(self, qml_engine, load_qml_file):
+        root_objects = load_qml_file(self.QML_FILE_PATH)
+        test_object = self.get_test_object(root_objects)
 
-        # Check if the QML file has been loaded successfully
-        root_objects = qml_engine.rootObjects()
-        if not root_objects:
-            raise ValueError(f"Failed to load QML file: {qml_file}")
-
-        found_test_object = next((obj for obj in root_objects if obj.objectName() == "testObject"), None)
-        if not found_test_object:
-            raise ValueError("testObject not found in QML file.")
-
-        mock_text_input = QObject()
+        mock_text_input = MockTextInput()
         mock_text_input.text = "test"
+        qml_engine.rootContext().setContextProperty("textInput", mock_text_input)
 
         mock_dropdown1 = MockListModel()
         mock_dropdown2 = MockListModel()
-        print("Before:", mock_dropdown1.visible)
 
-        found_test_object.handleVisibilityFor(mock_text_input, mock_dropdown1, mock_dropdown2)
+        test_object.handleVisibilityFor(mock_text_input, mock_dropdown1, mock_dropdown2)
         assert hasattr(mock_dropdown1, 'visible')
         assert mock_dropdown1.visible
         assert not mock_dropdown2.visible
