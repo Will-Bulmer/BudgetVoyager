@@ -60,38 +60,58 @@ ApplicationWindow {
     }
 
     Item {
-        id: inputBoxesContainer
+        id: allboxesContainer
         height: 54
         width: parent.width
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: 50
 
-        // Include fromBox.qml (LEFT)
-        FromInputBox {
-            id: fromInputComponent
-            boxLabel: "From"
-            filteredModel: filteredModelLeft
-            
-            // Exchanging variables between child modules
-            textInputRight: toInputComponent.textInputRightAlias
-            dropDownListViewRight : toInputComponent.dropDownListViewRightAlias
-            anchors.left: parent.left
-            // ... any other properties or configurations specific to this instance ...
-        }
-        // The right input box ("To")
-        ToInputBox {
-            id: toInputComponent
-            boxLabel: "To"
-            filteredModel: filteredModelRight
-            // Exchanging variables between child modules
-            textInputLeft: fromInputComponent.textInputLeftAlias
-            dropDownListViewLeft : fromInputComponent.dropDownListViewLeftAlias
+        Item {
+            id: inputBoxesContainer
+            height: parent.height
+            width: (2/3)*parent.width
+            //anchors.left: parent.left
+ 
+            // Include fromBox.qml (LEFT)
+            FromInputBox {
+                id: fromInputComponent
+                boxLabel: "From"
+                filteredModel: filteredModelLeft
+                width: parent.width / 2
+                height: parent.height
+                anchors.left: parent.left
+                
+                // Exchanging variables between child modules
+                textInputRight: toInputComponent.textInputRightAlias
+                dropDownListViewRight : toInputComponent.dropDownListViewRightAlias
+            }
 
-            anchors.right: parent.right
-            // ... any other properties or configurations specific to this instance ...
-        }
+            // The right input box ("To")
+            ToInputBox {
+                id: toInputComponent
+                boxLabel: "To"
+                filteredModel: filteredModelRight
+                width: parent.width / 2
+                height: parent.height
+                anchors.left: fromInputComponent.right
+                //anchors.leftMargin: parent.width * 0.109
 
+                // Exchanging variables between child modules
+                textInputLeft: fromInputComponent.textInputLeftAlias
+                dropDownListViewLeft : fromInputComponent.dropDownListViewLeftAlias
+            }
+        }
+        
+        DepartureDateBox {
+            id: departureDateComponent
+            boxLabel: "Date"
+            width: (1/3)*parent.width
+            height: parent.height
+            Component.onCompleted: {
+                anchors.left = inputBoxesContainer.right
+            }
+        }
     }
         
 

@@ -10,29 +10,19 @@ Item {
     InputDir.UtilityFunctions {
     id: utilityFunctions
     }
-    property string boxLabel: "From"
-    property var filteredModel: undefined  // Placeholder for the filtered model
-
-    // Giving Variables to the ToInputBox.qml
-    property alias textInputLeftAlias: textInputLeft
-    property alias dropDownListViewLeftAlias : dropDownListViewLeft
-
-    // Getting Variables from the ToInputBox.qml
-    property var textInputRight
-    property var dropDownListViewRight
-
-    id: inputContainerLeft
+    property string boxLabel: "Date"
+    id: inputContainerDate
     height: parent.height
 
     ListView {
-        id: dropDownListViewLeft
+        id: dropDownListViewDate
         width: 1.5*parent.width // Done the math. This will not go off the side of the app.
         y: parent.y + parent.height
-        visible: textInputLeft.activeFocus
+        visible: textInputDate.activeFocus
         anchors.left: parent.left
 
-        model: filteredModelLeft
-        height: Math.min(8, filteredModelLeft.count+1) * 30
+        model: ["Mon", "Tues"]
+        height: 30*7
         clip: true
         ScrollBar.vertical: ScrollBar {}
 
@@ -48,14 +38,15 @@ Item {
             height: 30
             color: "#e0e0e0"
             Label {
-                text: "Available Cities"
+                text: "Current Month Page"
                 anchors.centerIn: parent
                 color: "black"
                 font.bold: true
             }
         }
+        // Each item within the ListView
         delegate: Item {
-            width: dropDownListViewLeft.width
+            width: dropDownListViewDate.width
             height: 30
             Rectangle {
                 width: parent.width
@@ -65,7 +56,7 @@ Item {
                     anchors.left: parent.left
                     anchors.leftMargin: parent.width * 0.10
                     anchors.verticalCenter: parent.verticalCenter
-                    text: utilityFunctions.highlightText(model.name, textInputLeft.text)
+                    text: model.name
                     color: "black"
                     textFormat: Text.RichText
                 }
@@ -74,28 +65,28 @@ Item {
                     anchors.fill: parent
                     hoverEnabled: true
                 onClicked: {
-                    textInputLeft.text = model.name;
-                    textInputLeft.selectionMade = true;
-                    dropDownListViewLeft.visible = false;
+                    textInputDate.text = model.name;
+                    textInputDate.selectionMade = true;
+                    dropDownListViewDate.visible = false;
                     }
                 }
             }
         }
     }
     Rectangle {
-        width: parent.width / 5
-        height: parent.height / 2
+        width: parent.width / 3
+        height: parent.height/2
         color: "white"
         anchors.top: parent.top
-        anchors.left: textInputWrapperLeft.left
+        anchors.left: textInputWrapperDate.left
         Label {
-            text: "From"
+            text: "Departure"
             color: "grey"
             anchors.centerIn: parent
         }
     }
     Rectangle {
-        id: textInputWrapperLeft
+        id: textInputWrapperDate
         width: parent.width
         height: parent.height / 2
         border.color: "black"
@@ -105,33 +96,29 @@ Item {
         anchors.bottom: parent.bottom
 
         Image {
-            id: locationIconLeft
+            id: locationIconDate
             source: "assets/location_picture.jpg"
             width: 24
-            height: parent.height * 0.8
+            height: parent.height*0.8
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
             anchors.leftMargin: 5
         }
 
         TextInput {
-            id: textInputLeft
+            id: textInputDate
 
-            property bool selectionMade: false  // Add this property
-            property string previousSelection: ""  // New property
-            property bool italicizeLeft: false  // New property to control italic styling
-            font.italic: italicizeLeft  // Bind the font italic property to the 'italicize' property
+            property bool selectionMade: false 
+            property string previousSelection: "" 
+            property bool italicizeLeft: false 
+            font.italic: italicizeLeft 
 
 
             width: parent.width - 4
             height: parent.height - 4
             anchors.centerIn: parent
             verticalAlignment: TextInput.AlignVCenter
-            leftPadding: locationIconLeft.width + 10
-            onTextChanged: {
-                utilityFunctions.updateModel(text, filteredModelLeft, textInputRight.text);
-                utilityFunctions.handleVisibilityFor(textInputLeft, dropDownListViewLeft, dropDownListViewRight);
-            }
+            leftPadding: locationIconDate.width + 10
 
             onActiveFocusChanged: {
                 if (!activeFocus && !selectionMade) {
@@ -144,3 +131,5 @@ Item {
         }
     }
 }
+
+

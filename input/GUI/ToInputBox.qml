@@ -23,18 +23,14 @@ Item {
     
     id: inputContainerRight
     height: parent.height
-    width: inputBoxesContainer.width * 0.5 // 50% of the parent's width
-    anchors.right: parent.right
-    //anchors.left: inputContainerLeft.right
-    //anchors.right: parent.right // Make this textbox flush to the right
-    anchors.rightMargin: inputBoxesContainer.width * 0.094
 
     ListView {
         id: dropDownListViewRight
-        width: parent.width
+        width: 1.5*parent.width
         y: parent.y + parent.height
         visible: textInputRight.activeFocus
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.left: parent.left
+
         model: filteredModelRight
         height: Math.min(8, filteredModelRight.count+1) * 30
         clip: true
@@ -92,8 +88,8 @@ Item {
     }
 
     Rectangle {
-        width: 50
-        height: 20
+        width: parent.width / 5
+        height: parent.height / 2
         color: "white"
         anchors.top: parent.top
         anchors.left: textInputWrapperRight.left
@@ -106,8 +102,8 @@ Item {
 
     Rectangle {
         id: textInputWrapperRight
-        width: 204
-        height: 34
+        width: parent.width
+        height: parent.height / 2
         border.color: "black"
         border.width: 1
         color: "white"
@@ -118,7 +114,7 @@ Item {
             id: locationIconRight
             source: "assets/location_picture.jpg"
             width: 24
-            height: 24
+            height: parent.height * 0.8
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
             anchors.leftMargin: 5
