@@ -18,17 +18,6 @@ ApplicationWindow {
     InputDir.UtilityFunctions {
     id: utilityFunctions
     }
-    MouseArea {
-        id: fullScreenMouseArea
-        anchors.fill: parent
-        propagateComposedEvents: true // Allow other components to get the click events
-        
-        onClicked: {
-            fromInputComponent.dropDownListViewLeftAlias.visible = false;
-            toInputComponent.dropDownListViewRightAlias.visible = false;
-        }
-    }
-
     property var fullList : [""]
 
     Component.onCompleted: {
@@ -69,6 +58,29 @@ ApplicationWindow {
 
         function onJsonLoadError(errorMessage) {
             console.error("Failed to load JSON data:", errorMessage);
+        }
+    }
+    
+    MouseArea {
+        anchors.fill: parent
+        propagateComposedEvents: true
+        onClicked: function(mouse) {
+            console.log("Global Mouse Space Clicked");
+            
+            // Only hide dropdowns if the click wasn't on them or their associated text inputs
+            if (!fromInputComponent.dropDownListViewLeftAlias.containsMouse &&
+                !fromInputComponent.textInputLeftAlias.containsMouse &&
+                !toInputComponent.dropDownListViewRightAlias.containsMouse &&
+                !toInputComponent.textInputRightAlias.containsMouse) {
+                toInputComponent.dropDownListViewRightAlias.visible = false;
+                fromInputComponent.dropDownListViewLeftAlias.visible = false;
+
+                // Explicitly remove focus from both TextInputs
+                fromInputComponent.textInputLeftAlias.focus = false;
+                toInputComponent.textInputRightAlias.focus = false;
+            }
+            
+            mouse.accepted = false;  // Let the click propagate further if needed.
         }
     }
 

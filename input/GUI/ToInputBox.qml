@@ -136,7 +136,9 @@ Item {
             leftPadding: locationIconRight.width + 10
             onTextChanged: {
                 utilityFunctions.updateModel(text, filteredModelRight, textInputLeft.text);
-                utilityFunctions.handleVisibilityFor(textInputRight, dropDownListViewRight, dropDownListViewLeft);
+                //utilityFunctions.handleVisibilityFor(textInputRight, dropDownListViewRight, dropDownListViewLeft);
+                utilityFunctions.handleVisibilityFor(textInputLeft, dropDownListViewRight);
+
             }
 
             onActiveFocusChanged: {

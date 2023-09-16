@@ -70,11 +70,11 @@ Item {
                     id: mouseArea
                     anchors.fill: parent
                     hoverEnabled: true
-                onClicked: {
-                    textInputLeft.text = model.name;
-                    textInputLeft.selectionMade = true;
-                    dropDownListViewLeft.visible = false;
-                    }
+                    onClicked: {
+                        textInputLeft.text = model.name;
+                        textInputLeft.selectionMade = true;
+                        dropDownListViewLeft.visible = false;
+                        }
                 }
             }
         }
@@ -126,7 +126,8 @@ Item {
             leftPadding: locationIconLeft.width + 10
             onTextChanged: {
                 utilityFunctions.updateModel(text, filteredModelLeft, textInputRight.text);
-                utilityFunctions.handleVisibilityFor(textInputLeft, dropDownListViewLeft, dropDownListViewRight);
+                //utilityFunctions.handleVisibilityFor(textInputLeft, dropDownListViewLeft, dropDownListViewRight);
+                utilityFunctions.handleVisibilityFor(textInputLeft, dropDownListViewLeft);
             }
 
             onActiveFocusChanged: {
