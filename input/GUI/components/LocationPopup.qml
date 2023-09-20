@@ -20,6 +20,7 @@ Popup {
         anchors.fill: parent
         model: filteredModel
         clip: true
+        boundsBehavior: Flickable.StopAtBounds
         ScrollBar.vertical: ScrollBar {}
 
         Rectangle {

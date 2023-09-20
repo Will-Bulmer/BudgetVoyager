@@ -8,13 +8,14 @@ MouseArea {
     anchors.fill: parent
     hoverEnabled: true
 
-    property string boxLabel: "Label"
+    property string boxLabelInner
     property bool readOnly: false
     property var popupComponent: null
     property var utilityFunctions: null
     property var filteredModelInternal
     property var otherTextInput: null
     property var otherDropdownListView: null
+    property var imageSource: null
 
     onClicked: {
         textInput.forceActiveFocus();
@@ -40,7 +41,7 @@ MouseArea {
             anchors.left: parent.left
 
             Label {
-                text: boxLabel
+                text: boxLabelInner
                 color: "grey"
                 anchors.left: parent.left
                 anchors.bottom: parent.bottom
@@ -59,12 +60,13 @@ MouseArea {
 
             Image {
                 id: locationIcon
-                source: "assets/location_picture.jpg"
-                width: 24
-                height: parent.height * 0.8
+                source: imageSource
+                width: 15
+                height: parent.height * 0.6
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
                 anchors.leftMargin: 5
+                opacity: 0.7  // Set to desired value between 0 and 1
             }
 
             TextInput {

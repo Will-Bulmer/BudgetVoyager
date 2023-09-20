@@ -7,7 +7,7 @@ Item {
     // Components from parent
     property var locationPopup
     property var filteredModel
-    property string boxLabel: "Label"
+    property string boxLabel
 
     // External properties to handle unique behavior
     property var otherTextInput: null
@@ -23,10 +23,11 @@ Item {
     Components.LabelledTextInput {
         id: textBoxArea
         readOnly: false
-        boxLabel: "Location"
+        boxLabelInner: boxLabel
         popupComponent: locationPopup
         utilityFunctions: utilityFunctions
         filteredModelInternal: filteredModel
+        imageSource: "assets/location_picture_transparent.webp"
     }
 
     Components.LocationPopup {

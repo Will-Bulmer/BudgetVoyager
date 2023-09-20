@@ -6,7 +6,7 @@ import "../utilities" as Utilities
 
 Item {
 
-    property string boxLabel: "Label"
+    property string boxLabel
     property var filteredModel: undefined
 
     // External properties to handle unique behavior
@@ -31,9 +31,10 @@ Item {
     Components.LabelledTextInput {
         id: textBoxArea
         readOnly: true
-        boxLabel: "Departure"
         popupComponent: departurePopup
         utilityFunctions: utilityFunctions
+        boxLabelInner: boxLabel
+        imageSource: "assets/calender_icon_transparent.png"
     }
 
     Components.DeparturePopup {
