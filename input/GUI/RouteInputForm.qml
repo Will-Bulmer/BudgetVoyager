@@ -6,8 +6,6 @@ import "views" as Views
 import "." as InputDir
 
 Flow {
-    // Components at higher level
-    property var dropDownListView
     id: boxesContainer
     height: 54
     width: (8/10)*parent.width
@@ -17,7 +15,6 @@ Flow {
     anchors.leftMargin: parent.width * (1/10)
     anchors.rightMargin: parent.width * (1/10)
     flow: Flow.LeftToRight
-    //spacing: boxesContainer.width * (1/30)
     spacing: 15 // Opt for constant space?
 
     readonly property real thresholdWidth: 500
@@ -42,13 +39,13 @@ Flow {
             boxLabel: "From"
             filteredModel: filteredModelLeft
             otherTextInput: toBox.textInput
-            otherDropdownListView: toBox.dropDownListView
+            otherLocationPopup: toBox.locationPopup
             height: parent.height
             anchors.left: parent.left
             
             // Connect to the signal
             Component.onCompleted: {
-                mainWindow.globalClick.connect(hideDropdown);
+                mainWindow.globalClick.connect(hidePopup);
             }
         }
 
@@ -57,13 +54,13 @@ Flow {
             boxLabel: "To"
             filteredModel: filteredModelRight
             otherTextInput: fromBox.textInput
-            otherDropdownListView: fromBox.dropDownListView
+            otherLocationPopup: fromBox.locationPopup
             height: parent.height
             anchors.left: fromBox.right
 
             // Connect to the signal
             Component.onCompleted: {
-                mainWindow.globalClick.connect(hideDropdown);
+                mainWindow.globalClick.connect(hidePopup);
             }
         }
     }

@@ -20,25 +20,7 @@ QtObject {
         return fullText.replace(regExp, "<span style='background-color: yellow'>$1</span>");
     }
 
-    /*
-    function handleVisibilityFor(textInput, dropDownListView, otherDropDownListView) {
-        if(textInput && textInput.text) {
-            dropDownListView.visible = (textInput.text.length > 0);
-        } else {
-            dropDownListView.visible = false;
-        }
-        otherDropDownListView.visible = false;
+    function handleVisibilityFor(textInput, locationPopup) {
+        locationPopup.visible = (textInput && textInput.text.length > 0);
     }
-    */
-    function handleVisibilityFor(textInput, dropDownListView) {
-        dropDownListView.visible = (textInput && textInput.text.length > 0);
-    }
-
-
-    function hideDropdown() {
-        // Assuming your dropdown visibility is controlled by a property named "visible"
-        dropDownListView.visible = false; 
-    }
-
-
 }

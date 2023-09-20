@@ -32,12 +32,14 @@ Item {
         id: textBoxArea
         readOnly: true
         boxLabel: "Departure"
-        popupComponent: popupDate
+        popupComponent: departurePopup
         utilityFunctions: utilityFunctions
     }
 
     Components.DeparturePopup {
-        id: popupDate
+        id: departurePopup
         textInput: textBoxArea.textInput
+        x: textBoxArea.x
+        y: textBoxArea.y + textBoxArea.height
     }
 }

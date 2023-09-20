@@ -12,9 +12,10 @@ MouseArea {
     property bool readOnly: false
     property var popupComponent: null
     property var utilityFunctions: null
-    property var filteredModel: undefined
+    property var filteredModelInternal
     property var otherTextInput: null
     property var otherDropdownListView: null
+
     onClicked: {
         textInput.forceActiveFocus();
     }
@@ -82,18 +83,18 @@ MouseArea {
                 onTextChanged: {
                     if (utilityFunctions) {
                         utilityFunctions.updateModel(text, filteredModel, otherTextInput ? otherTextInput.text : "");
-                        utilityFunctions.handleVisibilityFor(textInput, popupComponent, otherDropdownListView ? otherDropdownListView : null);
+                        utilityFunctions.handleVisibilityFor(textInput, popupComponent);
                     }
                 }
 
                 onActiveFocusChanged: {
                     if (activeFocus) {
                         if (popupComponent) {
-                            popupComponent.visible = true;
+                            popupComponent.open()
                         }
                     } else {
                         if (popupComponent) {
-                            popupComponent.visible = false;
+                            popupComponent.close()
                         }
                     }
                     if (!activeFocus && !selectionMade) {

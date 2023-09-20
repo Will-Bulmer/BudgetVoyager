@@ -5,35 +5,37 @@ import "../utilities" as Utilities
 
 Item {
     // Components from parent
-    property var dropDownListView
-
+    property var locationPopup
+    property var filteredModel
     property string boxLabel: "Label"
 
     // External properties to handle unique behavior
-    property var filteredModel: undefined  // Placeholder for the filtered model
     property var otherTextInput: null
-    property var otherDropdownListView: null
+    property var otherLocationPopup: null
 
     Utilities.UtilityFunctions {
         id: utilityFunctions
     }
-    function hideDropdown() {
-        dropDownListView.visible = false;
+    function hidePopup() {
+        locationPopup.close();
     }
 
     Components.LabelledTextInput {
         id: textBoxArea
         readOnly: false
         boxLabel: "Location"
-        popupComponent: dropDownListView
+        popupComponent: locationPopup
         utilityFunctions: utilityFunctions
+        filteredModelInternal: filteredModel
     }
 
     Components.LocationPopup {
-        id: dropDownListView
+        id: locationPopup
         textInput: textBoxArea.textInput
-    }
-
+        x: textBoxArea.x
+        y: textBoxArea.y + textBoxArea.height
+    } 
+    
  
 }
 
