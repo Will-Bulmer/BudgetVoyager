@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import "." as InputDir
+import QtQuick.Layouts 1.15
+import "utilities" as Utilities
 
 // Path might need setting every time?
 // export QML2_IMPORT_PATH=/home/will_bulmer/.local/lib/python3.10/site-packages/PyQt6/Qt6/qml
@@ -10,12 +11,13 @@ import "." as InputDir
 // Also need to ensure that if a selection was not made and the popup vanishes, that the text goes back to blank
 
 ApplicationWindow {
+    id: mainWindow
     visible: true
-    width: 500  // Adjusted width to better accommodate two boxes
-    height: 500
+    width: 700  // Adjusted width to better accommodate two boxes
+    height: 700
     title: "Textbox with Dynamic Dropdown"
     color: "white"
-    InputDir.UtilityFunctions {
+    Utilities.UtilityFunctions {
     id: utilityFunctions
     }
     property var fullList : [""]
@@ -60,86 +62,27 @@ ApplicationWindow {
             console.error("Failed to load JSON data:", errorMessage);
         }
     }
+    // Focus Sink
+    Item {
+        id: focusSink
+        focus: true  // Ensure this item can receive focus
+        anchors.fill: parent
+    }
     
+    // Global MouseArea
+    signal globalClick()
     MouseArea {
         anchors.fill: parent
         propagateComposedEvents: true
         onClicked: function(mouse) {
-            console.log("Global Mouse Space Clicked");
-            
-            // Only hide dropdowns if the click wasn't on them or their associated text inputs
-            if (!fromInputComponent.dropDownListViewLeftAlias.containsMouse &&
-                !fromInputComponent.textInputLeftAlias.containsMouse &&
-                !toInputComponent.dropDownListViewRightAlias.containsMouse &&
-                !toInputComponent.textInputRightAlias.containsMouse) {
-                toInputComponent.dropDownListViewRightAlias.visible = false;
-                fromInputComponent.dropDownListViewLeftAlias.visible = false;
-
-                // Explicitly remove focus from both TextInputs
-                fromInputComponent.textInputLeftAlias.focus = false;
-                toInputComponent.textInputRightAlias.focus = false;
-            }
-            
+            //console.log("Global Mouse Space Clicked");
+            globalClick(); // Emit the signal here  
             mouse.accepted = false;  // Let the click propagate further if needed.
+            focusSink.forceActiveFocus();
         }
     }
-
-    Item {
-        id: allboxesContainer
-        height: 54
-        width: parent.width
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 50
-
-        Item {
-            id: inputBoxesContainer
-            height: parent.height
-            width: (2/3)*parent.width
-            //anchors.left: parent.left
- 
-            // Include fromBox.qml (LEFT)
-            FromInputBox {
-                id: fromInputComponent
-                boxLabel: "From"
-                filteredModel: filteredModelLeft
-                width: parent.width / 2
-                height: parent.height
-                anchors.left: parent.left
-                
-                // Exchanging variables between child modules
-                textInputRight: toInputComponent.textInputRightAlias
-                dropDownListViewRight : toInputComponent.dropDownListViewRightAlias
-            }
-
-            // The right input box ("To")
-            ToInputBox {
-                id: toInputComponent
-                boxLabel: "To"
-                filteredModel: filteredModelRight
-                width: parent.width / 2
-                height: parent.height
-                anchors.left: fromInputComponent.right
-                //anchors.leftMargin: parent.width * 0.109
-
-                // Exchanging variables between child modules
-                textInputLeft: fromInputComponent.textInputLeftAlias
-                dropDownListViewLeft : fromInputComponent.dropDownListViewLeftAlias
-            }
-        }
+    RouteInputForm {}
         
-        DepartureDateBox {
-            id: departureDateComponent
-            boxLabel: "Date"
-            width: (1/3)*parent.width
-            height: parent.height
-            Component.onCompleted: {
-                anchors.left = inputBoxesContainer.right
-            }
-        }
-    }
-        
-
     Button {
         text: "Quit"
         anchors.horizontalCenter: parent.horizontalCenter
