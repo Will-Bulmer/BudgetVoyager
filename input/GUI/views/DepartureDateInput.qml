@@ -7,11 +7,6 @@ import "../utilities" as Utilities
 Item {
 
     property string boxLabel
-    property var filteredModel: undefined
-
-    // External properties to handle unique behavior
-    property var otherTextInput: null
-    property var otherDropdownListView: null
 
     Utilities.UtilityFunctions {
         id: utilityFunctions
@@ -28,9 +23,8 @@ Item {
     }
 
     // TEXTBOX AND TITLE
-    Components.LabelledTextInput {
+    Components.LabelledDateInput {
         id: textBoxArea
-        readOnly: true
         popupComponent: departurePopup
         utilityFunctions: utilityFunctions
         boxLabelInner: boxLabel

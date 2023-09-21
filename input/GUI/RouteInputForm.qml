@@ -6,8 +6,11 @@ import "views" as Views
 import "." as InputDir
 
 Flow {
+    signal toSelected()
+    signal fromSelected()
+    signal dateSelected()
     id: boxesContainer
-    height: 54
+    height: 76
     width: (8/10)*parent.width
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.top: parent.top
@@ -17,7 +20,7 @@ Flow {
     flow: Flow.LeftToRight
     spacing: 15 // Opt for constant space?
 
-    readonly property real thresholdWidth: 500
+    readonly property real thresholdWidth: 800
     readonly property real boxLagTolerance: 1 // Smallest value we can get away with to compensate for Flow lag
 
     readonly property real boxBaseWidth: (boxesContainer.width - (2*spacing)) / 4
@@ -42,10 +45,12 @@ Flow {
             otherLocationPopup: toBox.locationPopup
             height: parent.height
             anchors.left: parent.left
-            
             // Connect to the signal
             Component.onCompleted: {
                 mainWindow.globalClick.connect(hidePopup);
+            }
+            onSelectionMadePropagator: function(locationName) {
+                console.log(locationName)
             }
         }
 
@@ -57,7 +62,9 @@ Flow {
             otherLocationPopup: fromBox.locationPopup
             height: parent.height
             anchors.left: fromBox.right
-
+            onSelectionMadePropagator: function(locationName) {
+                    console.log(locationName)
+                }
             // Connect to the signal
             Component.onCompleted: {
                 mainWindow.globalClick.connect(hidePopup);

@@ -14,14 +14,12 @@ MouseArea {
     property bool readOnly: false
     property var popupComponent: null
     property var utilityFunctions: null
-    property var filteredModelInternal
-    property var otherTextInputChild
-    property var otherDropdownListView: null
     property var imageSource: null
 
     onClicked: {
         textInput.forceActiveFocus();
     }
+
 
     onContainsMouseChanged: {
         if (containsMouse) {
@@ -79,35 +77,16 @@ MouseArea {
                 anchors.centerIn: parent
                 verticalAlignment: TextInput.AlignVCenter
                 leftPadding: locationIcon.width + 10
-                readOnly: readOnly
-                property string previousSelection: ""
-                placeholderText: previousSelection // use placeholderText instead of text
+                readOnly: true
                 placeholderTextColor: "gray" // style the placeholder as you wish
-
-                onTextChanged: {
-                    if (selectionMade) {
-                        selectionMade = false; // Reset the flag on changing text after a selection
-                        font.italic = false;
-                        text = text.charAt(0);
-                    }
-                    if (utilityFunctions && otherTextInput) {
-                        //console.log(otherTextInput ? otherTextInput.text : "")
-                        //console.log(textInput.text)
-                        utilityFunctions.updateModel(text, filteredModel, otherTextInputChild ? otherTextInputChild.text : "");
-                        utilityFunctions.handleVisibilityFor(textInput, popupComponent);
-                    }
-                }
 
                 onActiveFocusChanged: {
                     if (activeFocus) {
-                        font.italic = false;
                         if (popupComponent) {
                             popupComponent.open();
                         }
                         if (selectionMade) {
                             placeholderText = text; // set the placeholder to the selected text
-                            text = ""; // clear the current text
-                            cursorPosition = 0;
                         }
                     } else {
                         if (popupComponent) {

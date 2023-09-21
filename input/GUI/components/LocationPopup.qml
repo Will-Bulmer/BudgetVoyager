@@ -5,7 +5,9 @@ import "." as InputDir
 Popup {
     id: locationPopup
 
+    signal selectionMade(string locationName)
     property var textInput
+    property var otherTextInputChild
     width: 1.2 * parent.width
     height: Math.min(8, filteredModel.count + 1) * 30
     y: parent.y + parent.height
@@ -65,6 +67,8 @@ Popup {
                     onClicked: {
                         textInput.text = model.name;
                         textInput.selectionMade = true;
+                        selectionMade(textInput.text);
+                        utilityFunctions.updateModel(textInput.text, filteredModel, otherTextInputChild ? otherTextInputChild.text : "");
                         locationPopup.close(); // Close the popup when an item is clicked
                     }
                 }

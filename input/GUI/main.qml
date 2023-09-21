@@ -13,8 +13,9 @@ import "utilities" as Utilities
 ApplicationWindow {
     id: mainWindow
     visible: true
-    width: 700  // Adjusted width to better accommodate two boxes
-    height: 700
+    width: 1080  // Adjusted width to better accommodate two boxes
+    height: 1080
+    //visibility: Window.Maximized
     title: "Textbox with Dynamic Dropdown"
     color: "white"
     Utilities.UtilityFunctions {
@@ -68,7 +69,6 @@ ApplicationWindow {
         focus: true  // Ensure this item can receive focus
         anchors.fill: parent
     }
-    
     // Global MouseArea
     signal globalClick()
     MouseArea {
