@@ -4,7 +4,7 @@ import "../components" as Components
 import "../utilities" as Utilities
 
 Item {
-    signal selectionMadePropagator(string locationName)
+    signal locationSelectionMadePropagator(string locationName)
     // Components from parent
     property var locationPopup
     property var filteredModel
@@ -40,8 +40,8 @@ Item {
         y: textBoxArea.y + textBoxArea.height
         otherTextInputChild: otherTextInput
         // Emit another signal higher up
-        onSelectionMade: function(locationName) {
-            selectionMadePropagator(locationName);
+        onLocationSelectionMade: function(locationName) {
+            locationSelectionMadePropagator(locationName);
         }
     } 
 }

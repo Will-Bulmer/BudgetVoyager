@@ -85,16 +85,9 @@ MouseArea {
                         if (popupComponent) {
                             popupComponent.open();
                         }
-                        if (selectionMade) {
-                            placeholderText = text; // set the placeholder to the selected text
-                        }
+
                     } else {
                         if (popupComponent) {
-                            popupComponent.close();
-                        }
-                        if (!selectionMade){
-                            text = placeholderText; // set the text to the placeholder text
-                            selectionMade = true;
                             popupComponent.close();
                         }
                     }

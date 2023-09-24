@@ -5,6 +5,7 @@ import "../components" as Components
 import "../utilities" as Utilities
 
 Item {
+    signal dateSelectionMadePropagator(string dateClicked)
 
     property string boxLabel
 
@@ -13,13 +14,6 @@ Item {
     }
     function hideDropdown() {
         popupDate.visible = false;
-    }
-    // Model for the days of the month
-    property var daysOfTheMonth: []
-    Component.onCompleted: {
-        for(var i = 1; i <= 31; i++) {
-            daysOfTheMonth.push(i);
-        }
     }
 
     // TEXTBOX AND TITLE
@@ -36,5 +30,8 @@ Item {
         textInput: textBoxArea.textInput
         x: textBoxArea.x
         y: textBoxArea.y + textBoxArea.height
+        onDateSelectionMade: function(dateClicked) {
+            dateSelectionMadePropagator(dateClicked);
+        }
     }
 }

@@ -14,7 +14,7 @@ ApplicationWindow {
     id: mainWindow
     visible: true
     width: 1080  // Adjusted width to better accommodate two boxes
-    height: 1080
+    height: 800
     //visibility: Window.Maximized
     title: "Textbox with Dynamic Dropdown"
     color: "white"

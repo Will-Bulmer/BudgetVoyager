@@ -5,7 +5,7 @@ import "." as InputDir
 Popup {
     id: locationPopup
 
-    signal selectionMade(string locationName)
+    signal locationSelectionMade(string locationName)
     property var textInput
     property var otherTextInputChild
     width: 1.2 * parent.width
@@ -64,10 +64,11 @@ Popup {
                     id: mouseArea
                     anchors.fill: parent
                     hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         textInput.text = model.name;
-                        textInput.selectionMade = true;
-                        selectionMade(textInput.text);
+                        textInput.selectionMadeBool = true;
+                        locationSelectionMade(textInput.text);
                         utilityFunctions.updateModel(textInput.text, filteredModel, otherTextInputChild ? otherTextInputChild.text : "");
                         locationPopup.close(); // Close the popup when an item is clicked
                     }

@@ -5,7 +5,7 @@ MouseArea {
     property alias textInput: textInput
 
  
-    
+    signal dateSelectionMade(string locationName)
     id: hoverArea
     anchors.fill: parent
     hoverEnabled: true
@@ -73,7 +73,7 @@ MouseArea {
 
             TextField {
                 id: textInput
-                property bool selectionMade: false
+                property bool selectionMadeBool: false
                 width: parent.width - 4
                 height: parent.height - 4
                 anchors.centerIn: parent
@@ -85,8 +85,8 @@ MouseArea {
                 placeholderTextColor: "gray" // style the placeholder as you wish
 
                 onTextChanged: {
-                    if (selectionMade) {
-                        selectionMade = false; // Reset the flag on changing text after a selection
+                    if (selectionMadeBool) {
+                        selectionMadeBool = false; // Reset the flag on changing text after a selection
                         font.italic = false;
                         text = text.charAt(0);
                     }
@@ -99,12 +99,13 @@ MouseArea {
                 }
 
                 onActiveFocusChanged: {
+                    utilityFunctions.updateModel(text, filteredModel, otherTextInputChild ? otherTextInputChild.text : "");
                     if (activeFocus) {
                         font.italic = false;
                         if (popupComponent) {
                             popupComponent.open();
                         }
-                        if (selectionMade) {
+                        if (selectionMadeBool) {
                             placeholderText = text; // set the placeholder to the selected text
                             text = ""; // clear the current text
                             cursorPosition = 0;
@@ -113,9 +114,9 @@ MouseArea {
                         if (popupComponent) {
                             popupComponent.close();
                         }
-                        if (!selectionMade){
+                        if (!selectionMadeBool){
                             text = placeholderText; // set the text to the placeholder text
-                            selectionMade = true;
+                            selectionMadeBool = true;
                             popupComponent.close();
                         }
                     }

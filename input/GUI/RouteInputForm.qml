@@ -49,7 +49,7 @@ Flow {
             Component.onCompleted: {
                 mainWindow.globalClick.connect(hidePopup);
             }
-            onSelectionMadePropagator: function(locationName) {
+            onLocationSelectionMadePropagator: function(locationName) {
                 console.log(locationName)
             }
         }
@@ -62,7 +62,7 @@ Flow {
             otherLocationPopup: fromBox.locationPopup
             height: parent.height
             anchors.left: fromBox.right
-            onSelectionMadePropagator: function(locationName) {
+            onLocationSelectionMadePropagator: function(locationName) {
                     console.log(locationName)
                 }
             // Connect to the signal
@@ -77,6 +77,9 @@ Flow {
         boxLabel: "Departure"
         height: parent.height
         width: boxesContainer.isNarrow ? (2 * boxesContainer.boxBaseWidth + (boxesContainer.spacing / 2)) : boxesContainer.boxBaseWidth
+        onDateSelectionMadePropagator: function(dateClicked) {
+            console.log(dateClicked)
+        }
     }
 
     // Wrap Search box so we may use anchor to the bottom
