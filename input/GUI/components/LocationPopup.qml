@@ -4,6 +4,7 @@ import "." as InputDir
 
 Popup {
     id: locationPopup
+    closePolicy: Popup.NoAutoClose
     signal locationSelectionMade(string locationName)
     property var textInput
     property var otherTextInputChild
@@ -15,6 +16,7 @@ Popup {
     background: Rectangle { color: "transparent" }  // Set transparent background
 
 
+
     ListView {
         id: dropDownListView
         visible: true
@@ -22,6 +24,7 @@ Popup {
         model: filteredModel
         clip: true
         boundsBehavior: Flickable.StopAtBounds
+        cacheBuffer: 30*50 // 50 selections 
         ScrollBar.vertical: ScrollBar {}
 
         Rectangle {
@@ -64,8 +67,13 @@ Popup {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: {
+                    property bool debouncing: false
+                    onClicked: function(mouse) {
+                        if (debouncing) return;
+                        debouncing = true;
+                        mouse.accepted = true; // Stop propagation to prevent pareent handler interference
                         textInput.text = model.name;
+                        console.log(model.name)
                         textInput.selectionMadeBool = true;
                         locationSelectionMade(textInput.text);
                         utilityFunctions.updateModel(textInput.text, filteredModel, otherTextInputChild ? otherTextInputChild.text : "");
