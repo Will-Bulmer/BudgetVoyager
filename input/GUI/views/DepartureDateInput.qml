@@ -5,7 +5,7 @@ import "../components" as Components
 import "../utilities" as Utilities
 
 Item {
-    signal dateSelectionMadePropagator(string dateClicked)
+    signal dateSelectionMadePropagator(date dateClicked)
 
     property string boxLabel
 

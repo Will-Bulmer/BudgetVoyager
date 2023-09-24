@@ -4,8 +4,9 @@ import QtQuick.Layouts 1.15
 
 Popup {
     id : departurePopup
-    signal dateSelectionMade(string dateClicked)
+    signal dateSelectionMade(date dateClicked)
 
+    closePolicy: Popup.NoAutoClose
 
     property var textInput
     property date currentDate: new Date()

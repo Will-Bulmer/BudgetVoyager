@@ -4,7 +4,6 @@ import "." as InputDir
 
 Popup {
     id: locationPopup
-
     signal locationSelectionMade(string locationName)
     property var textInput
     property var otherTextInputChild

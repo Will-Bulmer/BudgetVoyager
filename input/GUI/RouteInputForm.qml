@@ -6,9 +6,13 @@ import "views" as Views
 import "." as InputDir
 
 Flow {
-    signal toSelected()
-    signal fromSelected()
-    signal dateSelected()
+    property bool fromBoxSelected: false
+    property bool toBoxSelected: false
+    property bool departureDateSelected: false
+    property string fromLocationName: ""
+    property string toLocationName: ""
+    property date departureDate: new Date()
+
     id: boxesContainer
     height: 76
     width: (8/10)*parent.width
@@ -50,7 +54,9 @@ Flow {
                 mainWindow.globalClick.connect(hidePopup);
             }
             onLocationSelectionMadePropagator: function(locationName) {
-                console.log(locationName)
+                boxesContainer.fromBoxSelected = true;
+                boxesContainer.fromLocationName = locationName;
+                console.log(locationName);
             }
         }
 
@@ -63,7 +69,9 @@ Flow {
             height: parent.height
             anchors.left: fromBox.right
             onLocationSelectionMadePropagator: function(locationName) {
-                    console.log(locationName)
+                    boxesContainer.toBoxSelected = true;
+                    boxesContainer.toLocationName = locationName;
+                    console.log(locationName);
                 }
             // Connect to the signal
             Component.onCompleted: {
@@ -78,7 +86,9 @@ Flow {
         height: parent.height
         width: boxesContainer.isNarrow ? (2 * boxesContainer.boxBaseWidth + (boxesContainer.spacing / 2)) : boxesContainer.boxBaseWidth
         onDateSelectionMadePropagator: function(dateClicked) {
-            console.log(dateClicked)
+            boxesContainer.departureDateSelected = true;
+            boxesContainer.departureDate = dateClicked;
+            console.log(dateClicked);
         }
     }
 
@@ -89,10 +99,14 @@ Flow {
 
         Components.SearchBox {
             id: searchBox
+            isSearchBoxEnabled: fromBoxSelected && toBoxSelected && departureDateSelected
             width: boxesContainer.isNarrow ? (2 * boxesContainer.boxBaseWidth + (boxesContainer.spacing / 2) - boxesContainer.boxLagTolerance) : boxesContainer.boxBaseWidth - (boxesContainer.boxLagTolerance)
             boxLabel: "Search"
             height: parent.height / 2
             anchors.bottom: parent.bottom
+            property string fromLocationName: ""
+            property string toLocationName: ""
+            property date departureDate: new Date()
         }
     }
 }

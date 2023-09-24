@@ -85,9 +85,8 @@ MouseArea {
                         if (popupComponent) {
                             popupComponent.open();
                         }
-
                     } else {
-                        if (popupComponent) {
+                        if (!textInput.containsMouse && popupComponent) {
                             popupComponent.close();
                         }
                     }
