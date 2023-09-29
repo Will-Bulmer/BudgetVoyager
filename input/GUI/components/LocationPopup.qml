@@ -4,6 +4,7 @@ import "." as InputDir
 
 Popup {
     id: locationPopup
+    property var filteredModelInternal
     closePolicy: Popup.NoAutoClose
     signal locationSelectionMade(string locationName)
     property var textInput
@@ -15,16 +16,14 @@ Popup {
     padding: 0  // Remove default padding
     background: Rectangle { color: "transparent" }  // Set transparent background
 
-
-
     ListView {
         id: dropDownListView
         visible: true
         anchors.fill: parent
-        model: filteredModel
+        model: filteredModelInternal
         clip: true
         boundsBehavior: Flickable.StopAtBounds
-        cacheBuffer: 30*50 // 50 selections 
+        //cacheBuffer: filteredModel.count * 30
         ScrollBar.vertical: ScrollBar {}
 
         Rectangle {
@@ -68,16 +67,28 @@ Popup {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     property bool debouncing: false
+                    property string clickedModelName: "" // Store the model name when the MouseArea is created
+
+                    Component.onCompleted: {
+                        clickedModelName = model.name;  // Store the model name when the MouseArea is created
+                    }
                     onClicked: function(mouse) {
                         if (debouncing) return;
                         debouncing = true;
-                        mouse.accepted = true; // Stop propagation to prevent pareent handler interference
-                        textInput.text = model.name;
-                        console.log(model.name)
+                        mouse.accepted = true;
+
+                        // Must redeclarae variable since delegate can be created and destroyed
+                        var textInput = locationPopup.textInput;
+                        var otherTextInputChild = locationPopup.otherTextInputChild;
+                        var updateModelFunction = utilityFunctions.updateModel;// Assigning function reference
+                        var currentFilteredModel = filteredModelInternal;
+                        var parentPopup = locationPopup; // Passing reference to locationPopup
+
+                        textInput.text = clickedModelName;
                         textInput.selectionMadeBool = true;
-                        locationSelectionMade(textInput.text);
-                        utilityFunctions.updateModel(textInput.text, filteredModel, otherTextInputChild ? otherTextInputChild.text : "");
-                        locationPopup.close(); // Close the popup when an item is clicked
+                        parentPopup.locationSelectionMade(textInput.text); // Send signal
+                        updateModelFunction(textInput.text, currentFilteredModel, otherTextInputChild ? otherTextInputChild.text : "");
+                        parentPopup.close();
                     }
                 }
             }

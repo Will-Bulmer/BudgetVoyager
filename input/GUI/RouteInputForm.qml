@@ -14,13 +14,7 @@ Flow {
     property date departureDate: new Date()
 
     id: boxesContainer
-    height: 76
-    width: (8/10)*parent.width
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.top: parent.top
-    anchors.topMargin: 50
-    anchors.leftMargin: parent.width * (1/10)
-    anchors.rightMargin: parent.width * (1/10)
+ 
     flow: Flow.LeftToRight
     spacing: 15 // Opt for constant space?
 
@@ -56,7 +50,7 @@ Flow {
             onLocationSelectionMadePropagator: function(locationName) {
                 boxesContainer.fromBoxSelected = true;
                 boxesContainer.fromLocationName = locationName;
-                console.log(locationName);
+                console.log("Location Selected: ", locationName);
             }
         }
 
@@ -71,7 +65,7 @@ Flow {
             onLocationSelectionMadePropagator: function(locationName) {
                     boxesContainer.toBoxSelected = true;
                     boxesContainer.toLocationName = locationName;
-                    console.log(locationName);
+                    console.log("Location Selected: ", locationName);
                 }
             // Connect to the signal
             Component.onCompleted: {
@@ -88,7 +82,7 @@ Flow {
         onDateSelectionMadePropagator: function(dateClicked) {
             boxesContainer.departureDateSelected = true;
             boxesContainer.departureDate = dateClicked;
-            console.log(dateClicked);
+            console.log("Date Selected:", dateClicked);
         }
     }
 

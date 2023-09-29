@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "utilities" as Utilities
+import "components" as Components
 
 // Path might need setting every time?
 // export QML2_IMPORT_PATH=/home/will_bulmer/.local/lib/python3.10/site-packages/PyQt6/Qt6/qml
@@ -16,7 +17,7 @@ ApplicationWindow {
     width: 1080  // Adjusted width to better accommodate two boxes
     height: 800
     //visibility: Window.Maximized
-    title: "Textbox with Dynamic Dropdown"
+    title: "Budget Voyager"
     color: "white"
     Utilities.UtilityFunctions {
     id: utilityFunctions
@@ -54,6 +55,9 @@ ApplicationWindow {
                 // Update both input models initially after loading the JSON
                 utilityFunctions.updateModel("", filteredModelLeft, "");
                 utilityFunctions.updateModel("", filteredModelRight, "");
+                routeInputFormLoader.sourceComponent = routeInputFormComponent; // Load input fields only once model is populated. Need loader due to asynchronous loading.
+                buttonLoader.sourceComponent = buttonComponent;
+
             } catch (error) {
                 console.error("Failed to parse JSON data:", error);
             }
@@ -81,17 +85,59 @@ ApplicationWindow {
             focusSink.forceActiveFocus();
         }
     }
-    RouteInputForm {}
-        
-    Button {
-        text: "Quit"
+
+    Components.TitleBanner{
+        id: titleBanner
+        width: parent.width
+        anchors.top: parent.top
+        height: 80 // Adjust the height to your preference
+    }
+    // Loader to load the RouteInputForm once the models are populated
+    Loader {
+        id: routeInputFormLoader
+        height: 76
+        width: (8/10)*parent.width
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: titleBanner.bottom
+        anchors.topMargin: 30
+        anchors.leftMargin: parent.width * (1/10)
+        anchors.rightMargin: parent.width * (1/10)
+    }
+    
+    Component {
+        id: routeInputFormComponent
+        RouteInputForm {
+        }
+    }
+    
+    Rectangle {
+        id: separatorLine
+        width: parent.width
+        height: 2 // Set the thickness of the line
+        color: "black" // Set the color of the line
+        anchors.topMargin: 30
+        anchors.top: routeInputFormLoader.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        opacity: 0.3
+    }
+
+    Loader {
+        id: buttonLoader
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 20
-        onClicked: {
-            Qt.quit()
+    }
+
+    Component {
+        id: buttonComponent
+        Button {
+            text: "Quit"
+            onClicked: {
+                Qt.quit()
+            }
         }
     }
+
 
     ListModel {
         id: filteredModelLeft

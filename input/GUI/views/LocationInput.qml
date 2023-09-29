@@ -39,6 +39,7 @@ Item {
         x: textBoxArea.x
         y: textBoxArea.y + textBoxArea.height
         otherTextInputChild: otherTextInput
+        filteredModelInternal: filteredModel
         // Emit another signal higher up
         onLocationSelectionMade: function(locationName) {
             locationSelectionMadePropagator(locationName);
