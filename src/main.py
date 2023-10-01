@@ -35,8 +35,9 @@ def make_flixbus_routes():
 
 def main():
     #print(sys.path)
-    make_flixbus_routes()
+    #make_flixbus_routes()
     #make_flixbus_city_info()
+    print("Nothing In main file. Trying running GUI")
 
 if __name__ == "__main__":
     main()

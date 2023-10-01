@@ -1,0 +1,160 @@
+{
+    "response_uuid": "f10fed27-7786-4e78-8262-07ca4c29a5dc",
+    "trips": [
+      {
+        "departure_city_id": "ce39aa68-df35-4462-a239-1edd92241574",
+        "arrival_city_id": "40dfdfd8-8646-11e6-9066-549f350fcb0c",
+        "date": "2023-10-02T00:00:00+01:00",
+        "results": {
+          "direct:0b84141a-dfad-49ae-abde-1ebca0c1de4b:c919a94a-0dfe-4c60-b1bf-ee4091e6df00:bf3a827a-71a9-4ea5-82b5-dbc0dd7e80fa": {
+            "uid": "direct:0b84141a-dfad-49ae-abde-1ebca0c1de4b:c919a94a-0dfe-4c60-b1bf-ee4091e6df00:bf3a827a-71a9-4ea5-82b5-dbc0dd7e80fa",
+            "status": "available",
+            "transfer_type": "Direct",
+            "transfer_type_key": "direct",
+            "provider": "flixbus",
+            "departure": {
+              "date": "2023-10-02T08:55:00+01:00",
+              "city_id": "ce39aa68-df35-4462-a239-1edd92241574",
+              "station_id": "c919a94a-0dfe-4c60-b1bf-ee4091e6df00"
+            },
+            "arrival": {
+              "date": "2023-10-02T10:45:00+01:00",
+              "city_id": "40dfdfd8-8646-11e6-9066-549f350fcb0c",
+              "station_id": "bf3a827a-71a9-4ea5-82b5-dbc0dd7e80fa"
+            },
+            "duration": {
+              "hours": 1,
+              "minutes": 50
+            },
+            "price": {
+              "total": 20,
+              "original": 20,
+              "average": 20
+            },
+            "remaining": {
+              "seats_left_at_price": null,
+              "seats": null,
+              "bike_slots": 0,
+              "capacity": "high"
+            },
+            "available": {
+              "seats": 5,
+              "bike_slots": 0
+            },
+            "legs": [
+              {
+                "departure": {
+                  "date": "2023-10-02T08:55:00+01:00",
+                  "city_id": "ce39aa68-df35-4462-a239-1edd92241574",
+                  "station_id": "c919a94a-0dfe-4c60-b1bf-ee4091e6df00"
+                },
+                "arrival": {
+                  "date": "2023-10-02T10:45:00+01:00",
+                  "city_id": "40dfdfd8-8646-11e6-9066-549f350fcb0c",
+                  "station_id": "bf3a827a-71a9-4ea5-82b5-dbc0dd7e80fa"
+                },
+                "means_of_transport": "bus",
+                "amenities": [
+                  "TOILET",
+                  "USB",
+                  "WIFI",
+                  "AIR_CONDITION",
+                  "POWER_SOCKETS",
+                  "SNACKS_DRINKS",
+                  "DISINFECTED",
+                  "STEWARDS"
+                ],
+                "is_marketplace": true,
+                "operator_id": "berco",
+                "brand_id": "deaff0ec-b57c-4ce5-9258-cb924e2c149a"
+              }
+            ],
+            "messages": [],
+            "restrictions": {
+              "sale_restriction": false,
+              "info_title": "",
+              "info_title_hint": "",
+              "info_message": "",
+              "bikes_allowed": true
+            },
+            "intermediate_stations_count": 0
+          }
+        },
+        "means_of_transport": [
+          "bus"
+        ],
+        "departure": {
+          "earliest_date": "2023-10-02T08:55:00+01:00",
+          "latest_date": "2023-10-02T08:55:00+01:00",
+          "stations": [
+            "c919a94a-0dfe-4c60-b1bf-ee4091e6df00"
+          ]
+        },
+        "arrival": {
+          "earliest_date": "2023-10-02T10:45:00+01:00",
+          "latest_date": "2023-10-02T10:45:00+01:00",
+          "stations": [
+            "bf3a827a-71a9-4ea5-82b5-dbc0dd7e80fa"
+          ]
+        }
+      }
+    ],
+    "operators": {
+      "berco": {
+        "label": "Berrys Coaches",
+        "key": "berco",
+        "url": "https://www.berryscoaches.co.uk/",
+        "address": "Peter Clifford House, Great Western Way, TA2 6BX Taunton",
+        "id": "berco"
+      }
+    },
+    "brands": {
+      "deaff0ec-b57c-4ce5-9258-cb924e2c149a": {
+        "name": "Berrys Coaches",
+        "type": "partner",
+        "active": true,
+        "logo": null,
+        "images": [],
+        "usps": [],
+        "description": null,
+        "color": null,
+        "color_light": null,
+        "color_dark": null
+      }
+    },
+    "cities": {
+      "40dfdfd8-8646-11e6-9066-549f350fcb0c": {
+        "name": "London",
+        "slug": "london",
+        "legacy_id": 3848,
+        "id": "40dfdfd8-8646-11e6-9066-549f350fcb0c"
+      },
+      "ce39aa68-df35-4462-a239-1edd92241574": {
+        "name": "Amesbury",
+        "slug": "amesbury",
+        "legacy_id": 51081,
+        "id": "ce39aa68-df35-4462-a239-1edd92241574"
+      }
+    },
+    "stations": {
+      "bf3a827a-71a9-4ea5-82b5-dbc0dd7e80fa": {
+        "id": "bf3a827a-71a9-4ea5-82b5-dbc0dd7e80fa",
+        "legacy_id": 61021,
+        "name": "London Hammersmith Bus Station (Bay D)",
+        "slug": "london-hammersmith-bus-station-bay-d",
+        "is_train": false,
+        "importance": 0
+      },
+      "c919a94a-0dfe-4c60-b1bf-ee4091e6df00": {
+        "id": "c919a94a-0dfe-4c60-b1bf-ee4091e6df00",
+        "legacy_id": 61121,
+        "name": "Amesbury",
+        "slug": "amesbury",
+        "is_train": false,
+        "importance": 0
+      }
+    },
+    "no_bikes_period": {
+  
+    }
+  }

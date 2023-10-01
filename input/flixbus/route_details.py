@@ -1,35 +1,18 @@
 import requests
 import json
 import re
+import os
 
 def load_from_json(file_path: str) -> dict:
     with open(file_path, 'r') as file:
         return json.load(file)
-
+    
 def fetch_global_api(url: str) -> dict:
     """Fetch data from a given URL."""
     response = requests.get(url)
     if response.status_code != 200:
         raise Exception(f"Failed to fetch data from {url}. RESPONSE CODE: {response.status_code}")
     return response.json()
-
-def process_api_data(data: dict, target_language: str) -> list:
-    relevant_data = []  # List to store relevant data
-    
-    # Define a recursive function to traverse nested structures
-    def extract_relevant_data(item):
-        if isinstance(item, dict):
-            if "_language" in item and item["_language"] == target_language:
-                relevant_data.append(item)
-            for value in item.values():
-                extract_relevant_data(value)
-        elif isinstance(item, list):
-            for element in item:
-                extract_relevant_data(element)
-
-    extract_relevant_data(data)  # Start the extraction process
-    
-    return relevant_data
 
 def is_valid_date(date_str):
     # Basic pattern check
@@ -63,21 +46,27 @@ def is_valid_date(date_str):
 
     return True
 
-def route_details_URL_call(start_uuid, end_uuid, depature_data):
+def convert_name_to_uuid(city_name, data_JSON):
+    for item in data_JSON.values():
+        if item["name"] == city_name:
+            return item["id"]
+    raise ValueError(f"'{city_name}' not found in the provided JSON.")
+
+def route_details_URL_call(start_uuid, end_uuid, depature_date):
         # Check for valid UUID
         uuid_pattern = re.compile(r'^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$')
         if not uuid_pattern.match(start_uuid):
             raise ValueError(f"Invalid UUID format for start_uuid: {start_uuid}")
         if not uuid_pattern.match(end_uuid):
             raise ValueError(f"Invalid UUID format for end_uuid: {end_uuid}")
-        if is_valid_date(depature_data) == False:
-            raise ValueError(f"Invalid date format for departure_date: {depature_data}")
+        if is_valid_date(depature_date) == False:
+            raise ValueError(f"Invalid date format for departure_date: {depature_date}")
         
         url_template = (
             f"https://global.api.flixbus.com/search/service/v4/search?"
             f"from_city_id={start_uuid}&"
             f"to_city_id={end_uuid}&"
-            f"departure_date={depature_data}&"
+            f"departure_date={depature_date}&"
             f"products=%7B%22adult%22%3A1%7D&"
             f"currency=GBP&"
             f"locale=en_GB&"
@@ -85,3 +74,49 @@ def route_details_URL_call(start_uuid, end_uuid, depature_data):
             f"include_after_midnight_rides=1"
         )
         return url_template
+    
+def extract_route_details_from_json(data: dict) -> tuple:
+    trip_details = []
+
+    for trip in data["trips"]:
+        for uid, result in trip["results"].items():
+            # Now we are looking for results
+            departure_station_id = result["departure"]["station_id"]
+            arrival_station_id = result["arrival"]["station_id"]
+            
+            departure_station_name = data["stations"][departure_station_id]["name"]
+            arrival_station_name = data["stations"][arrival_station_id]["name"]
+            # Need logic to get departure city and arrival city name.
+            departure_date = result["departure"]["date"]
+            arrival_date = result["arrival"]["date"]
+            price = result["price"]["total"]
+            available_seats = result["available"]["seats"]
+            provider = result["provider"]
+            
+            trip_details.append((departure_station_name, departure_date, arrival_station_name, arrival_date, price, available_seats, provider))
+
+    return trip_details
+
+def extract_journey_info(departure_name, arrival_name, date, bus_stops_JSON_path):
+    if not is_valid_date(date):
+        raise ValueError("Date given has incorrect format. Unable to make URL call.")
+    # JSONS PATHS
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    BUS_STOP_PATH = os.path.join(BASE_DIR, bus_stops_JSON_path)
+    DANGER_TEMP_JSON_PATH = os.path.join(BASE_DIR, "route_details_temp.json") # Define here rather than parameter to prevent clearing wrong data
+    
+    # DATA FETCHING
+    BUS_STOP_JSON_DATA = load_from_json(BUS_STOP_PATH)
+    departure_id = convert_name_to_uuid(departure_name, BUS_STOP_JSON_DATA)
+    arrival_id = convert_name_to_uuid(arrival_name, BUS_STOP_JSON_DATA)
+    url_call = route_details_URL_call(departure_id, arrival_id, date)
+    url_fetched_data = fetch_global_api(url_call)
+    
+    # LOGGING
+    with open(DANGER_TEMP_JSON_PATH, 'w') as file: 
+        json.dump(url_fetched_data, file) # May later want to append instead
+    
+    json_fetched_data = load_from_json(DANGER_TEMP_JSON_PATH)
+    trip_details = extract_route_details_from_json(json_fetched_data)
+    return trip_details
+       

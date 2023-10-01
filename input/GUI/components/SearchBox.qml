@@ -28,6 +28,7 @@ Item {
             cursorShape: root.isSearchBoxEnabled ? Qt.PointingHandCursor : Qt.ArrowCursor
             onClicked: {
                 console.log("Search Box Clicked!")
+                var tripDetails = functionalityBackend.getJourneyDetails(fromLocationName, toLocationName, departureDate.toString());
             }
         }
     }

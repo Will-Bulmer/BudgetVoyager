@@ -63,12 +63,12 @@ class MockListModel(QtCore.QObject):
     # Setter for the visible property
     def _set_visible(self, value):
         self._visible = value
-
+        
     visible = pyqtProperty(bool, _get_visible, _set_visible)
 
 class TestUtilityFunctions:
 
-    QML_FILE_PATH = "/home/will_bulmer/PROJECTS/BudgetVoyager/input/GUI/UtilityFunctions.qml"
+    QML_FILE_PATH = "/home/will_bulmer/PROJECTS/BudgetVoyager/input/GUI/utilities/UtilityFunctions.qml"
 
     def get_test_object(self, root_objects):
         found_test_object = next((obj for obj in root_objects if obj.objectName() == "testObject"), None)
@@ -107,17 +107,20 @@ class TestUtilityFunctions:
         root_objects = load_qml_file(self.QML_FILE_PATH)
         test_object = self.get_test_object(root_objects)
 
+        popup = MockListModel()
+
+        
         mock_text_input = MockTextInput()
-        mock_text_input.text = "test"
+        mock_text_input.text = ""
         qml_engine.rootContext().setContextProperty("textInput", mock_text_input)
+        test_object.handleVisibilityFor(mock_text_input, popup)
+        assert hasattr(popup, 'visible')
+        assert not popup.visible
 
-        mock_dropdown1 = MockListModel()
-        mock_dropdown2 = MockListModel()
+        mock_text_input.text = "test"
+        test_object.handleVisibilityFor(mock_text_input, popup)
+        assert popup.visible
 
-        test_object.handleVisibilityFor(mock_text_input, mock_dropdown1, mock_dropdown2)
-        assert hasattr(mock_dropdown1, 'visible')
-        assert mock_dropdown1.visible
-        assert not mock_dropdown2.visible
 
 
 

@@ -21,6 +21,6 @@ QtObject {
     }
 
     function handleVisibilityFor(textInput, locationPopup) {
-        locationPopup.visible = (textInput && textInput.text.length > 0);
+        locationPopup.visible = (textInput && textInput.text.length > 0); // Checks if text present
     }
 }

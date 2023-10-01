@@ -2,6 +2,8 @@
 import os
 import sys
 import json
+sys.path.append(os.path.dirname(os.path.abspath(__file__)), '../flixbus')
+from route_details import extract_journey_info
 from PyQt6.QtCore import QUrl, QObject, pyqtSlot, pyqtSignal
 from PyQt6.QtGui import QGuiApplication
 from PyQt6.QtQml import QQmlApplicationEngine
@@ -42,19 +44,30 @@ class JSONBackend(QObject):
                 print(f"Attempt {retries} - Error loading JSON: {e}", flush = True)
         print("Failed to load JSON after all retries", flush = True)
 
+class FUNCTIONALITYBackend(QObject):
+    @pyqtSlot(str, str, str, result=str)
+    def getJourneyDetails(self, departure_name, arrival_name, date):
+        try:
+            print("Search Clicked Propagated to the backend")
+            return
+            #return extract_journey_info(departure_name, arrival_name, date)
+        except Exception as e:
+            print(f"Error extracting journey details: {e}")
+            return ""
+    pass
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 GUI_PATH = os.path.join(BASE_DIR,'main.qml')
-#GUI_PATH = os.path.join(BASE_DIR,'Main.qml')
-
-#JSON_PATH = os.path.join(BASE_DIR, 'flixbus/bus_stops.json')
 
 def main():
     app = QGuiApplication(sys.argv)    
     engine = QQmlApplicationEngine() # Tool to load QML files
     
+    functionalityBackend = FUNCTIONALITYBackend()
+    engine.rootContext().setContextProperty("functionalityBackend", functionalityBackend)
+
     # Must expose jsonBackend before loading GUI
     jsonBackend = JSONBackend()
-    #jsonBackend.loadJSON(JSON_PATH)
     engine.rootContext().setContextProperty("jsonBackend", jsonBackend) # Expose the Python object to QML
     engine.load(QUrl(GUI_PATH))
     
