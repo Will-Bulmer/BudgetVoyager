@@ -6,65 +6,88 @@ Item {
     id: displayResultsRoot
     property alias model: journeyListView.model
     width: parent.width
-    height: 60
 
-    // Background Rectangle for ListView
-    Rectangle {
+    ListView {
+        id: journeyListView
+        visible: true
         anchors.fill: parent
-        color: "lightgray"
+        model: journeyModel
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+        ScrollBar.vertical: ScrollBar {}
 
-        ListView {
-            id: journeyListView
-            anchors.fill: parent
-            model: journeyModel
+        delegate: Rectangle {
+            color: "white"
+            width: journeyListView.width - 4
+            height: 50
+            anchors.horizontalCenter: parent.horizontalCenter
 
-            delegate: Rectangle {
+            RowLayout {
+                id: contentRow
                 anchors.fill: parent
-                border.color: "black"
-                border.width: 1
-                color: "white"  // Background color for each delegate item
+                //anchors.margins: 10
+                spacing: 2
 
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.margins: 10
-                    spacing: 20
+                Column {
+                    //Layout.preferredWidth: displayResultsRoot.width * 0.1
+                    Layout.preferredWidth: 85
+                    Layout.alignment: Qt.AlignLeft
+                    height: parent.height
 
-                    // Provider (flixbus)
-                    Column {
-                        Layout.preferredWidth: displayResultsRoot.width * 0.2 // Adjust width as needed
+                    Rectangle {
+                        anchors.fill: parent
+                        color: model.provider === "Flixbus" ? "#00BB5D" : "blue"
+                        visible: true
+
                         Text {
+                            anchors.centerIn: parent
                             text: model.provider
                             font.bold: true
-                            anchors.verticalCenter: parent.verticalCenter
+                            color: "white"  // Set the text color to white for better contrast against the green or blue background
                         }
                     }
+                }
 
-                    // Departure time and city
-                    Column {
-                        Text {
-                            text: model.departureTime
-                            font.bold: true
-                        }
-                        Text { text: model.departureCity }
+                // Departure time and city
+                Column {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: (displayResultsRoot.width - (displayResultsRoot.width * 0.15) + 85) * 0.5
+                    Layout.leftMargin: 20  // Adding right
+                    Text {
+                        text: model.departureTime
+                        font.bold: true
                     }
+                    Text { text: model.departureCity }
+                }
 
-                    // Arrival time and city
-                    Column {
-                        Text {
-                            text: model.arrivalTime
-                            font.bold: true
-                        }
-                        Text { text: model.arrivalCity }
+                // Arrival time and city
+                Column {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: (displayResultsRoot.width - (displayResultsRoot.width * 0.15) * 2) * 0.5
+                    Text {
+                        text: model.arrivalTime
+                        font.bold: true
                     }
+                    Text { text: model.arrivalCity }
+                }
 
-                    // Price and seats left
-                    Column {
-                        Text {
-                            text: model.price + " GDP"
-                            font.bold: true
-                        }
-                        Text { text: model.seatsLeft + " seats left" }
+                // Vertical line
+                Rectangle {
+                    Layout.preferredWidth: 2
+                    color: "#E0E0E0"  // Very light grey
+                    height: parent.height
+                    Layout.rightMargin: 10  // Adding right
+                }
+
+                // Price and seats left
+                Column {
+                    Layout.preferredWidth: displayResultsRoot.width * 0.15
+                    Layout.alignment: Qt.AlignRight
+                    Text {
+                        text: model.price + " GDP"
+                        font.bold: true
                     }
+                    Text { text: model.seatsLeft + " seats left" }
                 }
             }
         }

@@ -78,6 +78,9 @@ ApplicationWindow {
 
 
     function handleJourneyData(journeyListString) {
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
         try {
             var parsedJourneyList = JSON.parse(journeyListString);
             //console.log(parsedJourneyList)
@@ -93,7 +96,7 @@ ApplicationWindow {
                     "arrivalTime": utilityFunctions.extractTimeFromISOString(journey[3]),
                     "price": journey[4],
                     "seatsLeft": journey[5],
-                    "provider": journey[6]
+                    "provider": capitalizeFirstLetter(journey[6])
                 });
             }
         } catch (error) {
@@ -146,7 +149,7 @@ ApplicationWindow {
     }
     
     Rectangle {
-        id: separatorLine
+        id: separatorLineTop
         width: parent.width
         height: 2 // Set the thickness of the line
         color: "black" // Set the color of the line
@@ -156,26 +159,47 @@ ApplicationWindow {
         opacity: 0.3
     }
 
+
+    Components.DisplayResults {
+        id: displayResults
+        anchors.top: separatorLineTop.bottom
+        //anchors.topMargin: 15
+        width: parent.width - 60 // account for margins
+        anchors.bottomMargin: 15
+        anchors.bottom: buttonLoader.top  // This ensures it fills up the space until the white strip
+        anchors.leftMargin: 30  // Left margin
+        anchors.rightMargin: 30  // Right margin
+        anchors.horizontalCenter: parent.horizontalCenter  // Centering the delegate horizontally   
+        Rectangle {
+            color: "lightgray"
+            anchors.fill: parent
+            z: -1
+        }
+    }
+
     Loader {
         id: buttonLoader
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 20
     }
-
-    Components.DisplayResults {
-        model: journeyModel
-        anchors.top: separatorLine.bottom
-        anchors.topMargin: 30
-        width: parent.width
-    }
-
     Component {
         id: buttonComponent
-        Button {
-            text: "Quit"
-            onClicked: {
-                Qt.quit()
+        Rectangle {
+            id: bottomStrip
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: 30
+            color: "white"
+
+            Button {
+                id: quitButton
+                text: "Quit"
+                anchors.centerIn: parent
+                onClicked: {
+                    Qt.quit()
+                }
             }
         }
     }
