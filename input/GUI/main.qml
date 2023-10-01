@@ -68,24 +68,39 @@ ApplicationWindow {
         }
     }
 
-    // Connect the Python signal to a QML function
     Connections {
         target: functionalityBackend
-        function onJourneyDataReady(data) {
-            try {
-                var jsonData = JSON.parse(data); // Parse the JSON string
 
-                // Process jsonData and update the UI as needed
-                journeyModel.clear(); // Clear the previous data if any
-
-                for (var i = 0; i < jsonData.length; i++) {
-                    journeyModel.append({ "data": jsonData[i].toString() });
-                }
-            } catch (error) {
-                console.error("Failed to parse JSON data:", error);
-            }
+        function onJourneyDataReady(journeyListString) {
+            handleJourneyData(journeyListString);
         }
     }
+
+
+    function handleJourneyData(journeyListString) {
+        try {
+            var parsedJourneyList = JSON.parse(journeyListString);
+            //console.log(parsedJourneyList)
+            journeyModel.clear();
+            
+            for (var i = 0; i < parsedJourneyList.length; i++) {
+                var journey = parsedJourneyList[i];
+                //console.log(journey)
+                journeyModel.append({
+                    "departureCity": journey[0],
+                    "departureTime": utilityFunctions.extractTimeFromISOString(journey[1]),
+                    "arrivalCity": journey[2],
+                    "arrivalTime": utilityFunctions.extractTimeFromISOString(journey[3]),
+                    "price": journey[4],
+                    "seatsLeft": journey[5],
+                    "provider": journey[6]
+                });
+            }
+        } catch (error) {
+            console.error("Failed to process the journey data:", error);
+        }
+    }
+
 
     // Focus Sink
     Item {
@@ -148,16 +163,11 @@ ApplicationWindow {
         anchors.bottomMargin: 20
     }
 
-    ListView {
+    Components.DisplayResults {
         model: journeyModel
         anchors.top: separatorLine.bottom
         anchors.topMargin: 30
         width: parent.width
-        delegate: Text {
-            width: parent.width
-            //text: model.data.toString() // Convert the data to a string
-            text: model.data
-        }
     }
 
     Component {

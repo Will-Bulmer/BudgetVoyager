@@ -44,24 +44,23 @@ class JSONBackend(QObject):
         print("Failed to load JSON after all retries", flush = True)
 
 class FUNCTIONALITYBackend(QObject):
-    journeyDataReady = pyqtSignal(list)  # Declare the signal with list as argument
+    journeyDataReady = pyqtSignal(str)  # Declare the signal with list as argument
 
-    @pyqtSlot(str, str, str, result=str)
+    @pyqtSlot(str, str, str)
     def getJourneyDetails(self, departure_name, arrival_name, date):
         try:
-            print("Search Clicked Propagated to the backend", flush = True)
+            print("Search Clicked Propagated to the backend", flush=True)
             BUS_STOPS_JSON_PATH = "bus_stops.json"
             result = extract_journey_info(departure_name, arrival_name, date, BUS_STOPS_JSON_PATH)
-            print(result, flush = True)
-            
-            # Convert the result to a JSON string
+            #print(result, flush=True)
             result_json = json.dumps(result)
             self.journeyDataReady.emit(result_json)  # Emit the signal when the data is ready
-            return 
+            
         except Exception as e:
             print(f"Error extracting journey details: {e}")
+            self.journeyDataReady.emit([])  # Emit an empty list if there's an error
             return ""
-    pass
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 GUI_PATH = os.path.join(BASE_DIR,'main.qml')

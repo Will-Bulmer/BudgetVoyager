@@ -56,7 +56,22 @@ QtObject {
         }
     }
 
-       function handleJourneyData(data) {
-        console.log(data)
+    function extractTimeFromISOString(isoString) {
+        try {
+            var date = new Date(isoString);
+            var hours = date.getHours();
+            var minutes = date.getMinutes();
+
+            // Pad single digit minutes or hours with a leading zero
+            var formattedHours = hours.toString().padStart(2, '0');
+            var formattedMinutes = minutes.toString().padStart(2, '0');
+
+            return formattedHours + ":" + formattedMinutes;
+        } catch (error) {
+            console.error("Failed to extract time from ISO string:", error);
+            return "";
+        }
     }
+
+  
 }
