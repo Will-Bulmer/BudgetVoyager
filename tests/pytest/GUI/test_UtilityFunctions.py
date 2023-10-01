@@ -66,6 +66,26 @@ class MockListModel(QtCore.QObject):
         
     visible = pyqtProperty(bool, _get_visible, _set_visible)
 
+class MockDate(QtCore.QObject):
+    def __init__(self, day, month, year):
+        super(MockDate, self).__init__()
+        self._day = day
+        self._month = month
+        self._year = year
+
+    @QtCore.pyqtProperty(int)
+    def day(self):
+        return self._day
+
+    @QtCore.pyqtProperty(int)
+    def month(self):
+        return self._month
+
+    @QtCore.pyqtProperty(int)
+    def year(self):
+        return self._year
+
+
 class TestUtilityFunctions:
 
     QML_FILE_PATH = "/home/will_bulmer/PROJECTS/BudgetVoyager/input/GUI/utilities/UtilityFunctions.qml"
@@ -121,6 +141,16 @@ class TestUtilityFunctions:
         test_object.handleVisibilityFor(mock_text_input, popup)
         assert popup.visible
 
+    def test_transformDate(self, qml_engine, load_qml_file):
+        mock_date = MockDate(2, 9, 2023)
+        api_expected_date = "02.10.2023"
+        
+        root_objects = load_qml_file(self.QML_FILE_PATH)
+        test_object = self.get_test_object(root_objects)
+        assert hasattr(test_object, "transformDate")
+        result = test_object.transformDate(mock_date)
+        print(result)  # Debug line
 
+        assert result == api_expected_date
 
 

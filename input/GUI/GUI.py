@@ -2,8 +2,7 @@
 import os
 import sys
 import json
-sys.path.append(os.path.dirname(os.path.abspath(__file__)), '../flixbus')
-from route_details import extract_journey_info
+from input.flixbus.route_details import extract_journey_info
 from PyQt6.QtCore import QUrl, QObject, pyqtSlot, pyqtSignal
 from PyQt6.QtGui import QGuiApplication
 from PyQt6.QtQml import QQmlApplicationEngine
@@ -45,12 +44,20 @@ class JSONBackend(QObject):
         print("Failed to load JSON after all retries", flush = True)
 
 class FUNCTIONALITYBackend(QObject):
+    journeyDataReady = pyqtSignal(list)  # Declare the signal with list as argument
+
     @pyqtSlot(str, str, str, result=str)
     def getJourneyDetails(self, departure_name, arrival_name, date):
         try:
-            print("Search Clicked Propagated to the backend")
-            return
-            #return extract_journey_info(departure_name, arrival_name, date)
+            print("Search Clicked Propagated to the backend", flush = True)
+            BUS_STOPS_JSON_PATH = "bus_stops.json"
+            result = extract_journey_info(departure_name, arrival_name, date, BUS_STOPS_JSON_PATH)
+            print(result, flush = True)
+            
+            # Convert the result to a JSON string
+            result_json = json.dumps(result)
+            self.journeyDataReady.emit(result_json)  # Emit the signal when the data is ready
+            return 
         except Exception as e:
             print(f"Error extracting journey details: {e}")
             return ""

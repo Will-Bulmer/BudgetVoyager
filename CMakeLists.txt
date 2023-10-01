@@ -28,15 +28,13 @@ add_custom_target(run_main_script
     COMMENT "Executing main.py"
     VERBATIM
 )
+set(MY_PYTHON_PATH "${CMAKE_SOURCE_DIR}/src:${CMAKE_SOURCE_DIR}/input:${CMAKE_SOURCE_DIR}/input/flixbus")
 add_custom_target(run_gui_script
     COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}" ${CMAKE_SOURCE_DIR}/input/GUI/GUI.py
-    #COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHON_PATH}:$ENV{PYTHONPATH}" ${CMAKE_SOURCE_DIR}/input/qml_backend.py
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Executing GUI.py"
     VERBATIM
 )
-
-
 
 
 # TESTING
@@ -122,6 +120,6 @@ if(Python3_Interpreter_FOUND)
     set_tests_properties(pytest_GUI_UtilityFunctions
         PROPERTIES 
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input/GUI:$ENV{PYTHONPATH}"
+        ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/input/GUI:${CMAKE_SOURCE_DIR}/input/flixbus:$ENV{PYTHONPATH}"
     )
 endif()

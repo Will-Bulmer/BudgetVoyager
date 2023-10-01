@@ -67,6 +67,26 @@ ApplicationWindow {
             console.error("Failed to load JSON data:", errorMessage);
         }
     }
+
+    // Connect the Python signal to a QML function
+    Connections {
+        target: functionalityBackend
+        function onJourneyDataReady(data) {
+            try {
+                var jsonData = JSON.parse(data); // Parse the JSON string
+
+                // Process jsonData and update the UI as needed
+                journeyModel.clear(); // Clear the previous data if any
+
+                for (var i = 0; i < jsonData.length; i++) {
+                    journeyModel.append({ "data": jsonData[i].toString() });
+                }
+            } catch (error) {
+                console.error("Failed to parse JSON data:", error);
+            }
+        }
+    }
+
     // Focus Sink
     Item {
         id: focusSink
@@ -128,6 +148,18 @@ ApplicationWindow {
         anchors.bottomMargin: 20
     }
 
+    ListView {
+        model: journeyModel
+        anchors.top: separatorLine.bottom
+        anchors.topMargin: 30
+        width: parent.width
+        delegate: Text {
+            width: parent.width
+            //text: model.data.toString() // Convert the data to a string
+            text: model.data
+        }
+    }
+
     Component {
         id: buttonComponent
         Button {
@@ -145,6 +177,10 @@ ApplicationWindow {
 
     ListModel {
         id: filteredModelRight
+    }
+
+    ListModel {
+        id: journeyModel
     }
 }
 

@@ -3,7 +3,9 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "components" as Components
 import "views" as Views
+import "utilities" as Utilities
 import "." as InputDir
+
 
 Flow {
     property bool fromBoxSelected: false
@@ -11,7 +13,8 @@ Flow {
     property bool departureDateSelected: false
     property string fromLocationName: ""
     property string toLocationName: ""
-    property date departureDate: new Date()
+    property string departureDateString: ""
+    property date departureDateObject: new Date()
 
     id: boxesContainer
  
@@ -23,7 +26,9 @@ Flow {
 
     readonly property real boxBaseWidth: (boxesContainer.width - (2*spacing)) / 4
     readonly property bool isNarrow: boxesContainer.width < thresholdWidth
-
+    Utilities.UtilityFunctions {
+    id: utilityFunctions
+    }
     // Wrap two boxes in so that they may have no spacing
     Rectangle {
         id: locationBoxesContainer
@@ -51,6 +56,7 @@ Flow {
                 boxesContainer.fromBoxSelected = true;
                 boxesContainer.fromLocationName = locationName;
                 console.log("Location Selected: ", locationName);
+                utilityFunctions.updateSearchBoxState();
             }
         }
 
@@ -66,6 +72,7 @@ Flow {
                     boxesContainer.toBoxSelected = true;
                     boxesContainer.toLocationName = locationName;
                     console.log("Location Selected: ", locationName);
+                    utilityFunctions.updateSearchBoxState();
                 }
             // Connect to the signal
             Component.onCompleted: {
@@ -81,8 +88,10 @@ Flow {
         width: boxesContainer.isNarrow ? (2 * boxesContainer.boxBaseWidth + (boxesContainer.spacing / 2)) : boxesContainer.boxBaseWidth
         onDateSelectionMadePropagator: function(dateClicked) {
             boxesContainer.departureDateSelected = true;
-            boxesContainer.departureDate = dateClicked;
-            console.log("Date Selected:", dateClicked);
+            boxesContainer.departureDateObject = dateClicked
+            boxesContainer.departureDateString = utilityFunctions.transformDate(boxesContainer.departureDateObject);
+            console.log("Date Selected:", boxesContainer.departureDateString);
+            utilityFunctions.updateSearchBoxState();
         }
     }
 
@@ -98,9 +107,12 @@ Flow {
             boxLabel: "Search"
             height: parent.height / 2
             anchors.bottom: parent.bottom
-            property string fromLocationName: ""
-            property string toLocationName: ""
-            property date departureDate: new Date()
+            fromLocationName: boxesContainer.fromLocationName
+            toLocationName: boxesContainer.toLocationName
+            departureDateString: boxesContainer.departureDateString
+            onSearchClicked: {
+                searchBox.isSearchBoxEnabled = false;
+            }
         }
     }
 }

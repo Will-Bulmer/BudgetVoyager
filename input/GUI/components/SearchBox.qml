@@ -5,6 +5,10 @@ Item {
     id: root
     property string boxLabel: "Label"
     property bool isSearchBoxEnabled: true // Add this property to enable/disable the search box
+    property string fromLocationName: ""
+    property string toLocationName: ""
+    property string departureDateString: ""
+    signal searchClicked()
 
     Rectangle {
         id: searchBox
@@ -27,8 +31,9 @@ Item {
             enabled: root.isSearchBoxEnabled // Set MouseArea enabled/disabled based on isSearchBoxEnabled
             cursorShape: root.isSearchBoxEnabled ? Qt.PointingHandCursor : Qt.ArrowCursor
             onClicked: {
-                console.log("Search Box Clicked!")
-                var tripDetails = functionalityBackend.getJourneyDetails(fromLocationName, toLocationName, departureDate.toString());
+                console.log("Loading Your Travel Details...")
+                var tripDetails = functionalityBackend.getJourneyDetails(fromLocationName, toLocationName, departureDateString);
+                searchClicked();
             }
         }
     }

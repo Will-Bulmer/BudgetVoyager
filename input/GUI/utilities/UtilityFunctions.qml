@@ -23,4 +23,40 @@ QtObject {
     function handleVisibilityFor(textInput, locationPopup) {
         locationPopup.visible = (textInput && textInput.text.length > 0); // Checks if text present
     }
+    function updateSearchBoxState() {
+        if (fromBoxSelected && toBoxSelected && departureDateSelected) {
+            searchBox.isSearchBoxEnabled = true;
+        }
+    }
+
+    function transformDate(inputDate) {
+        // Helper function to zero-pad numbers less than 10
+        function zeroPad(num) {
+            return (num < 10 ? "0" : "") + num;
+        }
+
+        // If inputDate is of MockDate type
+        if (inputDate.hasOwnProperty("day") && inputDate.hasOwnProperty("month") && inputDate.hasOwnProperty("year")) {
+            // Handle MockDate object
+            var day = zeroPad(inputDate.day);
+            var month = zeroPad(inputDate.month + 1); // +1 to adjust 0-indexed month
+            var year = inputDate.year;
+            return day + "." + month + "." + year;
+        } 
+        // Else, handle as a regular Date
+        else {
+            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            var dateParts = inputDate.toString().split(" ");
+            
+            var day = zeroPad(parseInt(dateParts[2], 10));
+            var month = zeroPad(months.indexOf(dateParts[1]) + 1);  // +1 since months array is 0-indexed
+            var year = dateParts[4];
+            
+            return day + "." + month + "." + year;
+        }
+    }
+
+       function handleJourneyData(data) {
+        console.log(data)
+    }
 }
