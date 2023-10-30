@@ -84,7 +84,7 @@ Item {
                     Layout.preferredWidth: displayResultsRoot.width * 0.15
                     Layout.alignment: Qt.AlignRight
                     Text {
-                        text: model.price + " GDP"
+                        text: model.price + " GBP"
                         font.bold: true
                     }
                     Text { text: model.seatsLeft + " seats left" }
